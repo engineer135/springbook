@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 import springbook.user.domain.User;
 
 /**
@@ -23,7 +25,10 @@ public class UserDao {
 	}
 	*/
 	
-	private ConnectionMaker connectionMaker;
+	//private ConnectionMaker connectionMaker;
+	
+	// DataSource 인터페이스로 변환
+	private DataSource dataSource;
 	
 	/*public UserDao() {
 		// N사와 D사 각각 맞춰서 준비시켜준다.
@@ -41,14 +46,22 @@ public class UserDao {
 	}*/
 	
 	// 생성자로 의존관계 주입을 하지 않고, 수정자 메소드를 이용해 주입한다.
-	public void setConnectionMaker(ConnectionMaker connectionMaker) {
+	/*public void setConnectionMaker(ConnectionMaker connectionMaker) {
 		this.connectionMaker = connectionMaker;
+	}*/
+	
+	// DataSource 인터페이스로 변환
+	public void setDataSource(DataSource dataSource) {
+		this.dataSource = dataSource;
 	}
 	
-	public void add(User user) throws ClassNotFoundException, SQLException {
+	public void add(User user) throws SQLException {
 		// 인터페이스에 정의된 메소드를 사용하므로, 메소드 이름 변경할 걱정 없다. 
 		// 핵심은 UserDao를 뜯어고치지 않아도 된다는 것.
-		Connection c = this.connectionMaker.makeConnection();
+		//Connection c = this.connectionMaker.makeConnection();
+		
+		// DataSource 인터페이스로 변환
+		Connection c = this.dataSource.getConnection();
 		
 		PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values(?,?,?)");
 		ps.setString(1, user.getId());
@@ -61,8 +74,11 @@ public class UserDao {
 		c.close();
 	}
 	
-	public User get(String id) throws SQLException, ClassNotFoundException {
-		Connection c = this.connectionMaker.makeConnection();
+	public User get(String id) throws SQLException {
+		//Connection c = this.connectionMaker.makeConnection();
+		
+		// DataSource 인터페이스로 변환
+		Connection c = this.dataSource.getConnection();
 		
 		PreparedStatement ps = c.prepareStatement("select * from users where id = ?");
 		ps.setString(1, id);

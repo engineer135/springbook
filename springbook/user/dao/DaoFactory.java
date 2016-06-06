@@ -1,7 +1,10 @@
 package springbook.user.dao;
 
+import javax.sql.DataSource;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 /**
  * @author Engineer135
@@ -23,7 +26,10 @@ public class DaoFactory {
 		
 		// 생성자가 아닌 수정자 메소드를 이용해 connetionMaker 주입
 		UserDao userDao = new UserDao();
-		userDao.setConnectionMaker(connectionMaker());
+		//userDao.setConnectionMaker(connectionMaker());
+		
+		// dataSource로 변경
+		userDao.setDataSource(dataSource());
 		return userDao;
 	}
 	
@@ -41,5 +47,18 @@ public class DaoFactory {
 		return new DConnectionMaker();
 		// 이런식으로 로컬 DB, 운영 DB 나눠서 사용도 가능. 이 부분만 수정하면  DB 접속 정보가 바뀌므로. 얼마나 편한가!
 		//return new NConnectionMaker();
+	}
+	
+	// dataSource 인터페이스로 변환!
+	@Bean
+	public DataSource dataSource(){
+		SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
+		
+		dataSource.setDriverClass(org.mariadb.jdbc.Driver.class);
+		dataSource.setUrl("jdbc:mariadb://localhost/springbook");
+		dataSource.setUsername("spring");
+		dataSource.setPassword("book");
+		
+		return dataSource;
 	}
 }

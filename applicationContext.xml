@@ -8,7 +8,17 @@
 		메소드명은 id
 		class 는 빈 오브젝트를 어떤 클래스를 이용해서 만들지를 결정!	
 	-->
-	<bean id="connectionMaker" class="springbook.user.dao.DConnectionMaker"/>
+	<!-- <bean id="connectionMaker" class="springbook.user.dao.DConnectionMaker"/> -->
+	
+	<!-- dataSource로 변경 -->
+	<!-- propery를 이용해 수정자 메소드에 값 주입, 이때, ref가 아닌 value로 넣는다. 다른 빈의 이름이 아닌 실제 파수정자 메소드의 파라미터로 전달되는 스트링 그 자체이기 때문 -->
+	<!-- 여기서 놀라운건 스프링이 프로퍼티의 값을 적절한 형태로 변환해준다는 것. 그래서 드라이버 클래스도 저렇게 넣어주면 알아서 형변환 시켜준다. -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="org.mariadb.jdbc.Driver"/>
+		<property name="url" value="jdbc:mariadb://localhost/springbook"/>
+		<property name="username" value="spring"/>
+		<property name="password" value="book"/>
+	</bean>
 	
 	<!-- 
 		위와 동일한데, userDao Bean에는 의존 오브젝트가 존재한다(수정자 메소드로 의존 오브젝트를 넣어주는 부분)
@@ -22,7 +32,10 @@
 		이렇게 추가해주고, userDao 프로퍼티의 ref에 NconnectionMaker 이걸 써주면 된다. 그럼 원하는 DB 바꿔 쓸 수 있으니까.
 	 -->
 	<bean id="userDao" class="springbook.user.dao.UserDao">
-		<property name="connectionMaker" ref="connectionMaker"></property>
+		<!-- <property name="connectionMaker" ref="connectionMaker"></property> -->
+		
+		<!-- dataSource로 변경 -->
+		<property name="dataSource" ref="dataSource"></property>
 	</bean>		
 
 </beans>
