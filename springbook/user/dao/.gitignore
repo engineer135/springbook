@@ -6,3 +6,5 @@
 /DConnectionMaker.class
 /NConnectionMaker.class
 /DaoFactory.class
+/CountingConnectionMaker.class
+/CountingDaoFactory.class
