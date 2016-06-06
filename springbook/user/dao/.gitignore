@@ -2,3 +2,6 @@
 /NUserDao.class
 /DUserDao.class
 /SimpleConnectionMaker.class
+/ConnectionMaker.class
+/DConnectionMaker.class
+/NConnectionMaker.class
