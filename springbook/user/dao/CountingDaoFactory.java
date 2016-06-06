@@ -8,7 +8,12 @@ public class CountingDaoFactory {
 
 	@Bean // 오브젝트 생성을 담당하는 IoC용 메소드라는 표시
 	public UserDao userDao(){
-		return new UserDao(connectionMaker());
+		//return new UserDao(connectionMaker());
+		
+		// 생성자가 아닌 수정자 메소드를 이용해 connetionMaker 주입
+		UserDao userDao = new UserDao();
+		userDao.setConnectionMaker(connectionMaker());
+		return userDao;
 	}
 	
 	/*public AccountDao accountDao(){
