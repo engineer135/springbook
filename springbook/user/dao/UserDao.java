@@ -8,11 +8,14 @@ import java.sql.SQLException;
 
 import springbook.user.domain.User;
 
-public class UserDao {
+/**
+ * @author Engineer135
+ *
+ */
+public abstract class UserDao {
 	
 	public void add(User user) throws ClassNotFoundException, SQLException {
-		Class.forName("org.mariadb.jdbc.Driver");
-		Connection c = DriverManager.getConnection("jdbc:mariadb://localhost/springbook", "spring", "book");
+		Connection c = this.getConnection();
 		
 		PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values(?,?,?)");
 		ps.setString(1, user.getId());
@@ -26,8 +29,7 @@ public class UserDao {
 	}
 	
 	public User get(String id) throws SQLException, ClassNotFoundException {
-		Class.forName("org.mariadb.jdbc.Driver");
-		Connection c = DriverManager.getConnection("jdbc:mariadb://localhost/springbook", "spring", "book");
+		Connection c = this.getConnection();
 		
 		PreparedStatement ps = c.prepareStatement("select * from users where id = ?");
 		ps.setString(1, id);
@@ -45,4 +47,16 @@ public class UserDao {
 		
 		return user;
 	}
+	
+	/**
+	 * 
+	 * * UserDao의 getConnection 메소드를 abstract로 처리
+	 * NUserDao, DUserDao 가 UserDao를 상속 후 필요에 맞게 구현하도록 사용 (Template Method Pattern or Factory Method Pattern)
+	 * 
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
+	
 }

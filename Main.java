@@ -1,5 +1,6 @@
 import java.sql.SQLException;
 
+import springbook.user.dao.NUserDao;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.User;
 
@@ -7,7 +8,7 @@ public class Main {
 
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {
 		// TODO Auto-generated method stub
-		UserDao dao = new UserDao();
+		UserDao dao = new NUserDao();
 		
 		User user = new User();
 		user.setId("test1");
