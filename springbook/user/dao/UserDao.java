@@ -25,12 +25,17 @@ public class UserDao {
 	
 	private ConnectionMaker connectionMaker;
 	
-	public UserDao() {
+	/*public UserDao() {
 		// N사와 D사 각각 맞춰서 준비시켜준다.
 		// 여전히 UserDao의 생성자 메소드를 수정해줘야 하는 문제가 있다!
 		// UserDao와 UserDao가 사용할 ConnectionMaker의 특정 구현 클래스 사이의 관걔를 설정해주는 것에 관한 관심! 이것을 분리해야 한다.
 		connectionMaker = new DConnectionMaker();
 		//connectionMaker = new NConnectionMaker();
+	}*/
+	
+	// 생성자에서 관계를 만들지 않고, 클라이언트가 전달한 오브젝트를 사용하도록 변경
+	public UserDao(ConnectionMaker connectionMaker) {
+		this.connectionMaker = connectionMaker;
 	}
 	
 	public void add(User user) throws ClassNotFoundException, SQLException {
