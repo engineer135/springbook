@@ -12,10 +12,18 @@ import springbook.user.domain.User;
  * @author Engineer135
  *
  */
-public abstract class UserDao {
+public class UserDao {
+	
+	// 상속의 단점을 피하기 위해 DB 연결을 별도의 클래스로 생성
+	private SimpleConnectionMaker simpleConnectionMaker;
+	
+	public UserDao() {
+		// 한번만 만들어서 인스턴스 변수에 저장해두고 메소드에서 사용!
+		simpleConnectionMaker = new SimpleConnectionMaker();
+	}
 	
 	public void add(User user) throws ClassNotFoundException, SQLException {
-		Connection c = this.getConnection();
+		Connection c = this.simpleConnectionMaker.makeNewConnection();
 		
 		PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values(?,?,?)");
 		ps.setString(1, user.getId());
@@ -29,7 +37,7 @@ public abstract class UserDao {
 	}
 	
 	public User get(String id) throws SQLException, ClassNotFoundException {
-		Connection c = this.getConnection();
+		Connection c = this.simpleConnectionMaker.makeNewConnection();
 		
 		PreparedStatement ps = c.prepareStatement("select * from users where id = ?");
 		ps.setString(1, id);
@@ -57,6 +65,6 @@ public abstract class UserDao {
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
+	//public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
 	
 }
