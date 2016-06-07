@@ -1,37 +1,60 @@
-import java.sql.SQLException;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.JUnitCore;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
-import org.springframework.dao.EmptyResultDataAccessException;
-
-import springbook.user.dao.ConnectionMaker;
-import springbook.user.dao.DConnectionMaker;
-import springbook.user.dao.DaoFactory;
-import springbook.user.dao.NConnectionMaker;
-import springbook.user.dao.UserDao;
-import springbook.user.domain.User;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import springbook.user.dao.UserDao;
+import springbook.user.domain.User;
+
+//테스트는 가능한한 독립적으로 매번 새로운 오브젝트를 만들어 사용하는 것이 원칙
+// 하지만 애플리케이션 컨텍스트처럼 생성에 많은 시간과 자원이 소모되는 경우에는 테스트 전체가 공유하는 오브젝트를 만들기도 한다.
+// 문제는. jUnit이 매번 테스트 클래스의 오브젝트를 새로 만든다는 점!
+// 그래서 오브젝트 레벨에 애플리케이션 컨텍스트를 저장해두면 곤란하다. (리소스 등등)
+// 그래서.. jUnit이 @beforeClass 스태틱 메소드를 지원한다. 하지만, 스프링에서 직접 제공하는 애플리케이션 컨텍스트 테스트 지원 기능을 사용하는 것이 더 편리!
+@RunWith(SpringJUnit4ClassRunner.class) // 스프링의 테스트 컨텍스트 프레임워크의 JUnit 확장기능 지정
+@ContextConfiguration(locations="/applicationContext.xml") //테스트 컨텍스트가 자동으로 만들어줄 애플리케이션 컨텍스트의 위치 지정
 public class UserDaoTest {
+	
+	@Autowired
 	private UserDao dao;
+	
 	private User user1;
 	private User user2;
 	private User user3;
+	
+	// 스프링 테스트 컨텍스트 적용
+	// 테스트 오브젝트가 만들어지고 나면 스프링 테스트 컨텍스트에 의해 자동으로 값 주입
+	@Autowired
+	// Autowired가 붙은 인스턴스 변수가 있으면, 테스트 컨텍스트 프레임워크는 변수 타입과 일치하는 컨텍스트 내의 빈을 찾아서 주입해준다.
+	// ApplicationContext 타입의 빈은 xml 파일에 없는데 어떻게 DI가 된건지?
+	// 이유는 애플리케이션 컨텍스트가 초기화할때 자기 자신도 빈으로 등록하기 때문!
+	// 따라서 UserDao도 Autowired로 DI 가능.
+	private ApplicationContext context;
 	
 	// @Before 어노테이션이 붙으면 테스트 메소드 실행시 먼저 실행한다.
 	// 반복 작업을 여기 넣어두면 좋다.
 	// 테스트를 수행하는 데 필요한 정보나 오브젝트를 픽스처(fixture)라고 하는데, 여기선 dao가 대표적인 픽스처이다. 
 	@Before
 	public void setUp() {
-		ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-		dao = context.getBean("userDao", UserDao.class); // 첫번째 인자는 빈의 이름, 두번째 인자는 리턴 타입
+		// 컨텍스트 공유가 어떻게 되는것인지 확인하기 위한 소스
+		// 컨텍스트는 모두 동일해야한다. 그게 스프링 테스트 컨텍스트를 적용한 이유!
+		System.out.println(this.context);
+		System.out.println(this);
 		
+		//ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml"); 스프링 테스트 컨텍스트 프레임워크 적용을 위해 주석 처리
+		//this.dao = context.getBean("userDao", UserDao.class); // 첫번째 인자는 빈의 이름, 두번째 인자는 리턴 타입
+
 		user1 = new User("test1","자몽1","1234");
 		user2 = new User("test2","자몽2","1234");
 		user3 = new User("test3","자몽3","1234");
