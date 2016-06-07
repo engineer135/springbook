@@ -1,8 +1,12 @@
 import java.sql.SQLException;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.JUnitCore;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import springbook.user.dao.ConnectionMaker;
 import springbook.user.dao.DConnectionMaker;
@@ -11,21 +15,41 @@ import springbook.user.dao.NConnectionMaker;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.User;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 public class UserDaoTest {
+	private UserDao dao;
+	private User user1;
+	private User user2;
+	private User user3;
+	
+	// @Before 어노테이션이 붙으면 테스트 메소드 실행시 먼저 실행한다.
+	// 반복 작업을 여기 넣어두면 좋다.
+	// 테스트를 수행하는 데 필요한 정보나 오브젝트를 픽스처(fixture)라고 하는데, 여기선 dao가 대표적인 픽스처이다. 
+	@Before
+	public void setUp() {
+		ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
+		dao = context.getBean("userDao", UserDao.class); // 첫번째 인자는 빈의 이름, 두번째 인자는 리턴 타입
+		
+		user1 = new User("test1","자몽1","1234");
+		user2 = new User("test2","자몽2","1234");
+		user3 = new User("test3","자몽3","1234");
+	}
 	
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {
-		/*
+		/**
 		// UserDao가 아닌 클라이언트가 사용할 오브젝트를 생성자를 통해 전달해준다.
 		// 이렇게 함으로써 UserDao와 DB 커넥션과의 완벽한 분리!
-		ConnectionMaker connectionMaker = new DConnectionMaker();
+		//ConnectionMaker connectionMaker = new DConnectionMaker();
 		//ConnectionMaker connectionMaker = new NConnectionMaker();
 		
 		// TODO Auto-generated method stub
-		UserDao dao = new UserDao(connectionMaker);
-		*/
+		//UserDao dao = new UserDao(connectionMaker);
 		
-		/*DaoFactory daoFactory = new DaoFactory();
-		UserDao dao = daoFactory.userDao();*/
+		
+		//DaoFactory daoFactory = new DaoFactory();
+		//UserDao dao = daoFactory.userDao();
 		
 		// 애플리케이션 컨텍스트를 적용
 		// 이렇게 하면 클라이언트는 구체적인 팩토리 클래스를 알 필요가 없다. 일관된 방식으로 원하는 오브젝트를 가져올 수 있다.
@@ -54,5 +78,124 @@ public class UserDaoTest {
 		System.out.println(user2.getPassword());
 		
 		System.out.println(user2.getId() + "조회 성공");
+		
+		if(!user.getName().equals(user2.getName())){
+			System.out.println("테스트 실패 (name)");
+		}else if(!user.getPassword().equals(user2.getPassword())){
+			System.out.println("테스트 실패 (password)");
+		}else{
+			System.out.println("조회 테스트 성공");
+		}
+		*/
+		
+		
+		
+		//jUnit 테스트로 변경해준다
+		//JUnitCore.main("UserDaoTest");
+		
+		//IDE의 jUnit 테스트 기능을 이용하면 main 메소드 호출도 필요 없다.
+		//@Test 있는 클래스 선택한 뒤에 Run As -> JUnit Test 선택하면 자동 실행
+	}
+	
+	
+	
+	
+	// jUnit 프레임워크를 사용한 테스트
+	@Test
+	public void addAndGet() throws SQLException {
+		/*
+		// UserDao가 아닌 클라이언트가 사용할 오브젝트를 생성자를 통해 전달해준다.
+		// 이렇게 함으로써 UserDao와 DB 커넥션과의 완벽한 분리!
+		ConnectionMaker connectionMaker = new DConnectionMaker();
+		//ConnectionMaker connectionMaker = new NConnectionMaker();
+		
+		// TODO Auto-generated method stub
+		UserDao dao = new UserDao(connectionMaker);
+		*/
+		
+		/*DaoFactory daoFactory = new DaoFactory();
+		UserDao dao = daoFactory.userDao();*/
+		
+		// 애플리케이션 컨텍스트를 적용
+		// 이렇게 하면 클라이언트는 구체적인 팩토리 클래스를 알 필요가 없다. 일관된 방식으로 원하는 오브젝트를 가져올 수 있다.
+		// 의존관계 검색(Dependency Lookup) - 의존관계 주입(Dependency Injection)이 불가능한 경우 사용
+		// 검색하는 오브젝트는 자신이 스프링의 빈일 필요가 없음.
+		// DI는 주입되는 오브젝트도 반드시 빈 오브젝트여야 함.
+		
+		//ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
+		
+		// XML을 이용하는 애플리케이션 컨텍스트 적용
+		// setUp()으로 이동
+		/*ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
+		dao = context.getBean("userDao", UserDao.class); // 첫번째 인자는 빈의 이름, 두번째 인자는 리턴 타입
+*/		
+		// deleteAll 추가
+		dao.deleteAll();
+		assertThat(dao.getCount(), is(0));
+		
+		//setUp()으로 이동
+		// 새로 만든 생성자로 user 간편 생성
+		/*User user1 = new User("test1","자몽","1234");
+		User user2 = new User("test2","자몽2","1234");*/
+		
+		dao.add(user1);
+		dao.add(user2);
+		assertThat(dao.getCount(), is(2));
+		
+		/*if(!user.getName().equals(user2.getName())){
+			System.out.println("테스트 실패 (name)");
+		}else if(!user.getPassword().equals(user2.getPassword())){
+			System.out.println("테스트 실패 (password)");
+		}else{
+			System.out.println("조회 테스트 성공");
+		}*/
+		
+		User userget1 = dao.get(user1.getId());
+		assertThat(userget1.getName(), is(user1.getName()));
+		assertThat(userget1.getPassword(), is(user1.getPassword()));
+		
+		User userget2 = dao.get(user2.getId());
+		assertThat(userget2.getName(), is(user2.getName()));
+		assertThat(userget2.getPassword(), is(user2.getPassword()));
+	}
+	
+	@Test
+	public void count() throws SQLException {
+		// setUp()으로 이동
+		// XML을 이용하는 애플리케이션 컨텍스트 적용
+		/*ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
+		UserDao dao = context.getBean("userDao", UserDao.class); // 첫번째 인자는 빈의 이름, 두번째 인자는 리턴 타입
+		
+		User user1 = new User("test2","자몽","1234");
+		User user2 = new User("test3","자몽3","1234");
+		User user3 = new User("test4","자몽4","1234");
+*/
+		
+		dao.deleteAll();
+		assertThat(dao.getCount(), is(0));
+		
+		dao.add(user1);
+		assertThat(dao.getCount(), is(1));
+		
+		dao.add(user2);
+		assertThat(dao.getCount(), is(2));
+		
+		dao.add(user3);
+		assertThat(dao.getCount(), is(3));
+	}
+	
+	//테스트 중에 발생할 것으로 기대하는 예외 클래스를 지정해준다.
+	//예외가 반드시 발생해야 하는 경우를 테스트할때 사용. 예외 발생 = 테스트 성공. 그 외는 실패.
+	@Test(expected=EmptyResultDataAccessException.class)
+	public void getUserFailure() throws SQLException {
+		// setUp()으로 이동
+		// XML을 이용하는 애플리케이션 컨텍스트 적용
+		/*ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
+		UserDao dao = context.getBean("userDao", UserDao.class); // 첫번째 인자는 빈의 이름, 두번째 인자는 리턴 타입
+*/		
+		dao.deleteAll();
+		assertThat(dao.getCount(), is(0));
+		
+		dao.get("unknown_id");//이 메소드 실행 중에 예외가 발생해야 한다. 예외가 발생하지 않으면 테스트가 실패한다. 해당 id의 정보가 없으니까.. rs.next 에서 로우가 없으므로 에러!
 	}
 }
