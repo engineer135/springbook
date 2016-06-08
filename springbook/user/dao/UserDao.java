@@ -58,26 +58,24 @@ public class UserDao {
 	}
 	
 	public void add(final User user) throws SQLException {
-		
-		// AddStatement 클래스를 로컬 클래스로 만든다. 클래스 파일이 많아지는 것을 해결.
-		class AddStatement implements StatementStrategy {
-			public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-				PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values(?,?,?)");
-				
-				// user 정보는 생성자를 통해 제공받는다.
-				
-				// 로컬 클래스가 되면, 외부의 메소드 로컬 변수에 직접 접근이 가능. 생성자를 통해 받을 필요가 없어진다. 
-				// 다만, 외부 변수는 반드시 final로 선언해줘야 한다.
-				ps.setString(1, user.getId());
-				ps.setString(2, user.getName());
-				ps.setString(3, user.getPassword());
-				
-				return ps;
-			}
-		}
-		
-		StatementStrategy st = new AddStatement(); // 선정한 전략 클래스의 오브젝트 생성 - 생성자 파라미터로 user를 전달하지 않아도 된다.
-		this.jdbcContextWithStatementStrategy(st); // 컨텍스트 호출. 전략 오브젝트 전달.
+		// 로컬 클래스에서 익명 내부 클래스로 전환. 클래스를 재사용할 필요가 없고, 구현한 인터페이스 타입으로만 사용할 경우에 유용하다.
+		this.jdbcContextWithStatementStrategy(
+				new StatementStrategy(){
+					public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+						PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values(?,?,?)");
+						
+						// user 정보는 생성자를 통해 제공받는다.
+						
+						// 로컬 클래스가 되면, 외부의 메소드 로컬 변수에 직접 접근이 가능. 생성자를 통해 받을 필요가 없어진다. 
+						// 다만, 외부 변수는 반드시 final로 선언해줘야 한다.
+						ps.setString(1, user.getId());
+						ps.setString(2, user.getName());
+						ps.setString(3, user.getPassword());
+						
+						return ps;
+					}
+				}
+		); // 컨텍스트 호출. 전략 오브젝트 전달.
 	}
 	
 	public User get(String id) throws SQLException {
@@ -139,8 +137,15 @@ public class UserDao {
 	}
 	
 	public void deleteAll() throws SQLException{
-		StatementStrategy st = new DeleteAllStatement(); // 선정한 전략 클래스의 오브젝트 생성
-		this.jdbcContextWithStatementStrategy(st); // 컨텍스트 호출. 전략 오브젝트 전달.
+		// deleteAll도 마찬가지로 익명 내부 클래스로 전환!
+		this.jdbcContextWithStatementStrategy(
+				new StatementStrategy(){
+					public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+						PreparedStatement ps = c.prepareStatement("delete from users");
+						return ps;
+					}
+				}
+		); // 컨텍스트 호출. 전략 오브젝트 전달.
 	}
 	
 	public int getCount() throws SQLException {
