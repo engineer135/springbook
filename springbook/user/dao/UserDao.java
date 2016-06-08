@@ -57,8 +57,26 @@ public class UserDao {
 		this.dataSource = dataSource;
 	}
 	
-	public void add(User user) throws SQLException {
-		StatementStrategy st = new AddStatement(user); // 선정한 전략 클래스의 오브젝트 생성
+	public void add(final User user) throws SQLException {
+		
+		// AddStatement 클래스를 로컬 클래스로 만든다. 클래스 파일이 많아지는 것을 해결.
+		class AddStatement implements StatementStrategy {
+			public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+				PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values(?,?,?)");
+				
+				// user 정보는 생성자를 통해 제공받는다.
+				
+				// 로컬 클래스가 되면, 외부의 메소드 로컬 변수에 직접 접근이 가능. 생성자를 통해 받을 필요가 없어진다. 
+				// 다만, 외부 변수는 반드시 final로 선언해줘야 한다.
+				ps.setString(1, user.getId());
+				ps.setString(2, user.getName());
+				ps.setString(3, user.getPassword());
+				
+				return ps;
+			}
+		}
+		
+		StatementStrategy st = new AddStatement(); // 선정한 전략 클래스의 오브젝트 생성 - 생성자 파라미터로 user를 전달하지 않아도 된다.
 		this.jdbcContextWithStatementStrategy(st); // 컨텍스트 호출. 전략 오브젝트 전달.
 	}
 	
