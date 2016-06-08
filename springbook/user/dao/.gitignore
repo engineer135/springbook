@@ -8,3 +8,6 @@
 /DaoFactory.class
 /CountingConnectionMaker.class
 /CountingDaoFactory.class
+/StatementStrategy.class
+/DeleteAllStatement.class
+/AddStatement.class

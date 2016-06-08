@@ -1,4 +1,5 @@
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
@@ -58,6 +59,10 @@ public class UserDaoTest {
 		user1 = new User("test1","ÀÚ¸ù1","1234");
 		user2 = new User("test2","ÀÚ¸ù2","1234");
 		user3 = new User("test3","ÀÚ¸ù3","1234");
+		
+		System.out.println(user1);
+		System.out.println(user2);
+		System.out.println(user3);
 	}
 	
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {
