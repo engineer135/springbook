@@ -70,4 +70,37 @@ public class JdbcContext {
 			}
 		}
 	}
+	
+	public void executeSql(final String query) throws SQLException {
+		workWithStatementStrategy(
+				// 변하지 않는 콜백 클래스 정의와 오브젝트 생성.. 공통되는 부분을 분리해서 재활용할 수 있도록 한다.
+				new StatementStrategy(){
+					public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+						PreparedStatement ps = c.prepareStatement(query);
+						return ps;
+					}
+				}
+		); // 컨텍스트 호출. 전략 오브젝트 전달.
+	}
+	
+	public void executeSqlWithParam(final String query, String... strs) throws SQLException {
+		// 로컬 클래스에서 익명 내부 클래스로 전환. 클래스를 재사용할 필요가 없고, 구현한 인터페이스 타입으로만 사용할 경우에 유용하다.
+		workWithStatementStrategy(
+				new StatementStrategy(){
+					public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+						PreparedStatement ps = c.prepareStatement(query);
+						
+						// user 정보는 생성자를 통해 제공받는다.
+						
+						// 로컬 클래스가 되면, 외부의 메소드 로컬 변수에 직접 접근이 가능. 생성자를 통해 받을 필요가 없어진다. 
+						// 다만, 외부 변수는 반드시 final로 선언해줘야 한다.
+						for(int i=0; i<strs.length; i++){
+							ps.setString(i+1, strs[i]);
+						}
+						
+						return ps;
+					}
+				}
+		); // 컨텍스트 호출. 전략 오브젝트 전달.
+	}
 }
