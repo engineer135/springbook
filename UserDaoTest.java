@@ -3,6 +3,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -56,9 +57,9 @@ public class UserDaoTest {
 		//ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml"); 스프링 테스트 컨텍스트 프레임워크 적용을 위해 주석 처리
 		//this.dao = context.getBean("userDao", UserDao.class); // 첫번째 인자는 빈의 이름, 두번째 인자는 리턴 타입
 
-		user1 = new User("test1","자몽1","1234");
-		user2 = new User("test2","자몽2","1234");
-		user3 = new User("test3","자몽3","1234");
+		user1 = new User("gymee","자몽1","1234");
+		user2 = new User("leegw700","자몽2","1234");
+		user3 = new User("bumjin","자몽3","1234");
 		
 		System.out.println(user1);
 		System.out.println(user2);
@@ -225,5 +226,38 @@ public class UserDaoTest {
 		assertThat(dao.getCount(), is(0));
 		
 		dao.get("unknown_id");//이 메소드 실행 중에 예외가 발생해야 한다. 예외가 발생하지 않으면 테스트가 실패한다. 해당 id의 정보가 없으니까.. rs.next 에서 로우가 없으므로 에러!
+	}
+	
+	@Test
+	public void getAll() throws SQLException{
+		dao.deleteAll();
+		
+		// 데이터가 없을때 어떻게 처리할지!?
+		List<User> users0 = dao.getAll();
+		assertThat(users0.size(), is(0));//데이터가 없을때 크기가 0인 리스트 오브젝트가 리턴되어야 한다.
+		
+		dao.add(user1);
+		List<User> users1 = dao.getAll();
+		assertThat(users1.size(), is(1));
+		checkSameUser(user1, users1.get(0));
+		
+		dao.add(user2);
+		List<User> users2 = dao.getAll();
+		assertThat(users2.size(), is(2));
+		checkSameUser(user1, users2.get(0));
+		checkSameUser(user2, users2.get(1));
+		
+		dao.add(user3);
+		List<User> users3 = dao.getAll();
+		assertThat(users3.size(), is(3));
+		checkSameUser(user3, users3.get(0));//user3의 id값이 알파벳순으로 가장 빠르므로 getAll()의 첫번째 엘리먼트여야 한다.
+		checkSameUser(user1, users3.get(1));
+		checkSameUser(user2, users3.get(2));
+	}
+	
+	private void checkSameUser(User user1, User user2){
+		assertThat(user1.getId(), is(user2.getId()));
+		assertThat(user1.getName(), is(user2.getName()));
+		assertThat(user1.getPassword(), is(user2.getPassword()));
 	}
 }

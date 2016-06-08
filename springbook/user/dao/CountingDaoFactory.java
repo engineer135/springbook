@@ -12,7 +12,7 @@ public class CountingDaoFactory {
 		
 		// 생성자가 아닌 수정자 메소드를 이용해 connetionMaker 주입
 		UserDao userDao = new UserDao();
-		userDao.setConnectionMaker(connectionMaker());
+		//userDao.setConnectionMaker(connectionMaker());
 		return userDao;
 	}
 	

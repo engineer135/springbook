@@ -5,10 +5,16 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 
 import springbook.user.domain.User;
 
@@ -60,11 +66,16 @@ public class UserDao {
 		// 2. DAO 코드를 이용해 수동으로 DI 한 경우 
 		// 1. 장점 - 외부에 그 관계가 드러나지 않음. 
 		// 2. 단점 - JdbcContext를 여러 오브젝트가 사용하더라도 싱글톤으로 만들 수 없고, DI 작업을 위한 부가적인 코드가 필요.
-		this.jdbcContext = new JdbcContext();
-		this.jdbcContext.setDataSource(dataSource);
+		//this.jdbcContext = new JdbcContext();
+		//this.jdbcContext.setDataSource(dataSource);
+		
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
 	
 	private JdbcContext jdbcContext;
+	
+	// 스프링이 제공하는 jdbcTemplate. jdbcContext를 버리고 이걸로 갈아타자.
+	private JdbcTemplate jdbcTemplate;
 	
 	// 인터페이스 없이 DAO와 밀접한 관계를 갖는 클래스를 DI에 적용하는 법은 두가지
 	// 1. 스프링 빈으로 등록해서 사용했을때 
@@ -75,115 +86,73 @@ public class UserDao {
 	}*/
 	
 	public void add(final User user) throws SQLException {
-		this.jdbcContext.executeSqlWithParam("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
+		//this.jdbcContext.executeSqlWithParam("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
+		
+		// jdbcTemplate 로 갈아타기 2단계 (내장 콜백 사용)
+		this.jdbcTemplate.update("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
 	}
 	
 	public User get(String id) throws SQLException {
-		Connection c = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		User user = null;
-		
-		try{
-			//Connection c = this.connectionMaker.makeConnection();
-			
-			// DataSource 인터페이스로 변환
-			c = this.dataSource.getConnection();
-			
-			ps = c.prepareStatement("select * from users where id = ?");
-			ps.setString(1, id);
-			
-			rs = ps.executeQuery();
-			
-			if(rs.next()){
-				user = new User();
+		return this.jdbcTemplate.queryForObject("select * from users where id = ?", new Object[] {id}
+			, new RowMapper<User>(){
+			public User mapRow(ResultSet rs, int rowNum) throws SQLException {//ResultSet한 로우의 결과를 오브젝트에 매핑해주는 RowMapper 콜백
+				User user = new User();
 				user.setId(rs.getString("id"));
 				user.setName(rs.getString("name"));
 				user.setPassword(rs.getString("password"));
+				return user;
 			}
-		}catch(SQLException e){
-			throw e;
-		}finally{
-			if(rs != null){
-				try{
-					rs.close();
-				}catch(SQLException e){// rs.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다. 요거 안잡아주면, 여기서 에러난 경우에 아래에 있는 c.close는 타지도 못하고 메소드를 빠져나간다.
-					
-				}
+		});
+	}
+	
+	public List<User> getAll(){
+		return this.jdbcTemplate.query("select * from users order by id", 
+				new RowMapper<User>(){
+					public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+						User user = new User();
+						user.setId(rs.getString("id"));
+						user.setName(rs.getString("name"));
+						user.setPassword(rs.getString("password"));
+						return user;
+					}
 			}
-			
-			if(ps != null){
-				try{
-					ps.close();
-				}catch(SQLException e){// ps.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다. 요거 안잡아주면, 여기서 에러난 경우에 아래에 있는 c.close는 타지도 못하고 메소드를 빠져나간다.
-					
-				}
-			}
-			
-			if(c != null){
-				try{
-					c.close();
-				}catch(SQLException e){// c.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다.
-					
-				}
-			}
-		}
-		
-		if(user == null){
-			throw new EmptyResultDataAccessException(1);
-		}
-		
-		return user;
+		);
 	}
 	
 	public void deleteAll() throws SQLException{
-		this.jdbcContext.executeSql("delete from users");
+		//this.jdbcContext.executeSql("delete from users");
+		
+		// jdbcTemplate 로 갈아타기 1단계
+		/*this.jdbcTemplate.update(
+				new PreparedStatementCreator(){
+					public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+						return con.prepareStatement("delete from users");
+					}
+				}
+		);*/
+		
+		// jdbcTemplate 로 갈아타기 2단계 (내장 콜백 사용)
+		this.jdbcTemplate.update("delete from users");
 	}
 	
 	public int getCount() throws SQLException {
-		Connection c = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		int count = 0;
+		// jdbcTemplate 로 갈아타기 1단계
+		// 얘는 콜백이 두개다. 리턴 값을 가져와야 하기에!
+		/*return this.jdbcTemplate.query(
+				new PreparedStatementCreator(){
+					public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+						return con.prepareStatement("select count(*) from users");
+					}}
+				, new ResultSetExtractor<Integer>(){
+					public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
+						rs.next();
+						return rs.getInt(1);
+					}
+				}
+		);*/
 		
-		try{
-			c = this.dataSource.getConnection();
-			
-			ps = c.prepareStatement("select count(1) from users");
-			
-			rs = ps.executeQuery();
-			rs.next();
-			
-			count = rs.getInt(1);
-		}catch(SQLException e){
-			throw e;
-		}finally{
-			if(rs != null){
-				try{
-					rs.close();
-				}catch(SQLException e){// rs.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다. 요거 안잡아주면, 여기서 에러난 경우에 아래에 있는 c.close는 타지도 못하고 메소드를 빠져나간다.
-					
-				}
-			}
-			
-			if(ps != null){
-				try{
-					ps.close();
-				}catch(SQLException e){// ps.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다. 요거 안잡아주면, 여기서 에러난 경우에 아래에 있는 c.close는 타지도 못하고 메소드를 빠져나간다.
-					
-				}
-			}
-			
-			if(c != null){
-				try{
-					c.close();
-				}catch(SQLException e){// c.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다.
-					
-				}
-			}
-		}
-		
-		return count;
+		// jdbcTemplate 로 갈아타기 2단계
+		return this.jdbcTemplate.queryForInt("select count(*) from users");
 	}
 	
 	/**
