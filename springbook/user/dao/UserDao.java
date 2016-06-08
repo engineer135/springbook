@@ -55,14 +55,25 @@ public class UserDao {
 	// DataSource 인터페이스로 변환
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
+		
+		// JdbcContext 생성을 스프링 빈으로 등록하는 대신 UserDao에서 직접 DI를 적용하는 방법으로 수정
+		// 2. DAO 코드를 이용해 수동으로 DI 한 경우 
+		// 1. 장점 - 외부에 그 관계가 드러나지 않음. 
+		// 2. 단점 - JdbcContext를 여러 오브젝트가 사용하더라도 싱글톤으로 만들 수 없고, DI 작업을 위한 부가적인 코드가 필요.
+		this.jdbcContext = new JdbcContext();
+		this.jdbcContext.setDataSource(dataSource);
 	}
 	
 	private JdbcContext jdbcContext;
 	
-	public void setJdbcContext(JdbcContext jdbcContext) {//JdbcContext를 DI 받오록 만든다.
+	// 인터페이스 없이 DAO와 밀접한 관계를 갖는 클래스를 DI에 적용하는 법은 두가지
+	// 1. 스프링 빈으로 등록해서 사용했을때 
+	// 장점 - 오브젝트 사이의 실제 의존관계가 설정파일에 명확하게 드러남
+	// 단점 - DI의 근본적인 원치게 부합하지 않는 구체적인 클래스와의 관계가 설정에 직접 노출됨
+	/*public void setJdbcContext(JdbcContext jdbcContext) {//JdbcContext를 DI 받오록 만든다.
 		this.jdbcContext = jdbcContext;
-	}
-
+	}*/
+	
 	public void add(final User user) throws SQLException {
 		// 로컬 클래스에서 익명 내부 클래스로 전환. 클래스를 재사용할 필요가 없고, 구현한 인터페이스 타입으로만 사용할 경우에 유용하다.
 		this.jdbcContext.workWithStatementStrategy(
