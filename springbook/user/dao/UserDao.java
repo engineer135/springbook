@@ -77,27 +77,55 @@ public class UserDao {
 	}
 	
 	public User get(String id) throws SQLException {
-		//Connection c = this.connectionMaker.makeConnection();
-		
-		// DataSource 인터페이스로 변환
-		Connection c = this.dataSource.getConnection();
-		
-		PreparedStatement ps = c.prepareStatement("select * from users where id = ?");
-		ps.setString(1, id);
-		
-		ResultSet rs = ps.executeQuery();
-		
+		Connection c = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
 		User user = null;
-		if(rs.next()){
-			user = new User();
-			user.setId(rs.getString("id"));
-			user.setName(rs.getString("name"));
-			user.setPassword(rs.getString("password"));
-		}
 		
-		rs.close();
-		ps.close();
-		c.close();
+		try{
+			//Connection c = this.connectionMaker.makeConnection();
+			
+			// DataSource 인터페이스로 변환
+			c = this.dataSource.getConnection();
+			
+			ps = c.prepareStatement("select * from users where id = ?");
+			ps.setString(1, id);
+			
+			rs = ps.executeQuery();
+			
+			if(rs.next()){
+				user = new User();
+				user.setId(rs.getString("id"));
+				user.setName(rs.getString("name"));
+				user.setPassword(rs.getString("password"));
+			}
+		}catch(SQLException e){
+			throw e;
+		}finally{
+			if(rs != null){
+				try{
+					rs.close();
+				}catch(SQLException e){// rs.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다. 요거 안잡아주면, 여기서 에러난 경우에 아래에 있는 c.close는 타지도 못하고 메소드를 빠져나간다.
+					
+				}
+			}
+			
+			if(ps != null){
+				try{
+					ps.close();
+				}catch(SQLException e){// ps.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다. 요거 안잡아주면, 여기서 에러난 경우에 아래에 있는 c.close는 타지도 못하고 메소드를 빠져나간다.
+					
+				}
+			}
+			
+			if(c != null){
+				try{
+					c.close();
+				}catch(SQLException e){// c.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다.
+					
+				}
+			}
+		}
 		
 		if(user == null){
 			throw new EmptyResultDataAccessException(1);
@@ -107,28 +135,79 @@ public class UserDao {
 	}
 	
 	public void deleteAll() throws SQLException{
-		Connection c = this.dataSource.getConnection();
+		Connection c = null;
+		PreparedStatement ps = null;
 		
-		PreparedStatement ps = c.prepareStatement("delete from users");
-		ps.executeUpdate();
-		
-		ps.close();
-		c.close();
+		try{
+			// 예외가 발생할 가능성이 있는 코드를 모두 try 블록으로 묶어준다.
+			c = this.dataSource.getConnection();
+			
+			ps = c.prepareStatement("delete from users");
+			ps.executeUpdate();
+		}catch(SQLException e){
+			// 로그를 남기거나.. 일단 여기서는 그냥 던지기만 한다.
+			throw e;
+		}finally{
+			if(ps != null){
+				try{
+					ps.close();
+				}catch(SQLException e){// ps.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다. 요거 안잡아주면, 여기서 에러난 경우에 아래에 있는 c.close는 타지도 못하고 메소드를 빠져나간다.
+					
+				}
+			}
+			
+			if(c != null){
+				try{
+					c.close();
+				}catch(SQLException e){// c.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다.
+					
+				}
+			}
+		}
 	}
 	
 	public int getCount() throws SQLException {
-		Connection c = this.dataSource.getConnection();
+		Connection c = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		int count = 0;
 		
-		PreparedStatement ps = c.prepareStatement("select count(1) from users");
-		
-		ResultSet rs = ps.executeQuery();
-		rs.next();
-		
-		int count = rs.getInt(1);
-		
-		rs.close();
-		ps.close();
-		c.close();
+		try{
+			c = this.dataSource.getConnection();
+			
+			ps = c.prepareStatement("select count(1) from users");
+			
+			rs = ps.executeQuery();
+			rs.next();
+			
+			count = rs.getInt(1);
+		}catch(SQLException e){
+			throw e;
+		}finally{
+			if(rs != null){
+				try{
+					rs.close();
+				}catch(SQLException e){// rs.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다. 요거 안잡아주면, 여기서 에러난 경우에 아래에 있는 c.close는 타지도 못하고 메소드를 빠져나간다.
+					
+				}
+			}
+			
+			if(ps != null){
+				try{
+					ps.close();
+				}catch(SQLException e){// ps.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다. 요거 안잡아주면, 여기서 에러난 경우에 아래에 있는 c.close는 타지도 못하고 메소드를 빠져나간다.
+					
+				}
+			}
+			
+			if(c != null){
+				try{
+					c.close();
+				}catch(SQLException e){// c.close() 메소드에서도 SQLException이 발생할 수 있기 때문에 잡아줘야 한다.
+					
+				}
+			}
+		}
 		
 		return count;
 	}
