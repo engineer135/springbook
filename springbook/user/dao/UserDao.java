@@ -36,7 +36,8 @@ public class UserDao {
 	//private ConnectionMaker connectionMaker;
 	
 	// DataSource 인터페이스로 변환
-	private DataSource dataSource;
+	// jdbcTemplate 쓰면서 사용할 일 없어짐
+	// private DataSource dataSource;
 	
 	/*public UserDao() {
 		// N사와 D사 각각 맞춰서 준비시켜준다.
@@ -60,7 +61,7 @@ public class UserDao {
 	
 	// DataSource 인터페이스로 변환
 	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
+		//this.dataSource = dataSource;
 		
 		// JdbcContext 생성을 스프링 빈으로 등록하는 대신 UserDao에서 직접 DI를 적용하는 방법으로 수정
 		// 2. DAO 코드를 이용해 수동으로 DI 한 경우 
@@ -72,7 +73,7 @@ public class UserDao {
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
 	
-	private JdbcContext jdbcContext;
+	//private JdbcContext jdbcContext;
 	
 	// 스프링이 제공하는 jdbcTemplate. jdbcContext를 버리고 이걸로 갈아타자.
 	private JdbcTemplate jdbcTemplate;
@@ -85,6 +86,18 @@ public class UserDao {
 		this.jdbcContext = jdbcContext;
 	}*/
 	
+	// 중복 코드 분리해 재사용
+	private RowMapper<User> userMapper =
+			new RowMapper<User>(){
+				public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+					User user = new User();
+					user.setId(rs.getString("id"));
+					user.setName(rs.getString("name"));
+					user.setPassword(rs.getString("password"));
+					return user;
+				}
+	};
+	
 	public void add(final User user) throws SQLException {
 		//this.jdbcContext.executeSqlWithParam("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
 		
@@ -94,28 +107,12 @@ public class UserDao {
 	
 	public User get(String id) throws SQLException {
 		return this.jdbcTemplate.queryForObject("select * from users where id = ?", new Object[] {id}
-			, new RowMapper<User>(){
-			public User mapRow(ResultSet rs, int rowNum) throws SQLException {//ResultSet한 로우의 결과를 오브젝트에 매핑해주는 RowMapper 콜백
-				User user = new User();
-				user.setId(rs.getString("id"));
-				user.setName(rs.getString("name"));
-				user.setPassword(rs.getString("password"));
-				return user;
-			}
-		});
+			, this.userMapper);
 	}
 	
 	public List<User> getAll(){
 		return this.jdbcTemplate.query("select * from users order by id", 
-				new RowMapper<User>(){
-					public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-						User user = new User();
-						user.setId(rs.getString("id"));
-						user.setName(rs.getString("name"));
-						user.setPassword(rs.getString("password"));
-						return user;
-					}
-			}
+				this.userMapper
 		);
 	}
 	
