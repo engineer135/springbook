@@ -36,6 +36,14 @@
 		
 		<!-- dataSource로 변경 -->
 		<property name="dataSource" ref="dataSource"></property>
+		
+		<!--  jdbcContext -->
+		<property name="jdbcContext" ref="jdbcContext"></property>
 	</bean>		
+	
+	<bean id="jdbcContext" class="springbook.user.dao.JdbcContext">
+		<!-- dataSource 추가 -->
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
 
 </beans>
