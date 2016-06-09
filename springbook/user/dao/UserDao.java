@@ -16,6 +16,8 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
+import com.mysql.jdbc.MysqlErrorNumbers;
+
 import springbook.user.domain.User;
 
 /**
@@ -98,9 +100,22 @@ public class UserDao {
 				}
 	};
 	
-	public void add(final User user) throws SQLException {
+	public void add(final User user) throws DuplicateUserIdException {
 		//this.jdbcContext.executeSqlWithParam("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
 		
+		/*try{
+			// JDBC를 이용해 USER 정보를 DB에 추가하는 코드 또는 
+			// 그런 기능이 있는 다른 SQLException을 던지는 메소드를 호출하는 코드...
+			
+			this.jdbcContext.executeSqlWithParam("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
+		}catch(SQLException e){
+			// ErrorCode가 MySql의 Duplicate Entry(1062)이면 예외 전환
+			if(e.getErrorCode() == MysqlErrorNumbers.ER_DUP_ENTRY){
+				throw new DuplicateUserIdException(e);
+			}else{
+				throw new RuntimeException(e); //예외 포장
+			}
+		}*/
 		// jdbcTemplate 로 갈아타기 2단계 (내장 콜백 사용)
 		this.jdbcTemplate.update("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
 	}
