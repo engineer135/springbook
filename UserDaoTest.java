@@ -17,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import springbook.user.dao.UserDao;
+import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
 //테스트는 가능한한 독립적으로 매번 새로운 오브젝트를 만들어 사용하는 것이 원칙
@@ -57,9 +58,9 @@ public class UserDaoTest {
 		//ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml"); 스프링 테스트 컨텍스트 프레임워크 적용을 위해 주석 처리
 		//this.dao = context.getBean("userDao", UserDao.class); // 첫번째 인자는 빈의 이름, 두번째 인자는 리턴 타입
 
-		user1 = new User("gymee","자몽1","1234");
-		user2 = new User("leegw700","자몽2","1234");
-		user3 = new User("bumjin","자몽3","1234");
+		user1 = new User("gymee","자몽1","1234", Level.BASIC, 1, 0); //추가된 필드를 위한 초기값 세팅
+		user2 = new User("leegw700","자몽2","1234" , Level.SILVER, 55, 10); //추가된 필드를 위한 초기값 세팅
+		user3 = new User("bumjin","자몽3","1234", Level.GOLD, 100, 40); //추가된 필드를 위한 초기값 세팅
 		
 		System.out.println(user1);
 		System.out.println(user2);
@@ -180,12 +181,10 @@ public class UserDaoTest {
 		}*/
 		
 		User userget1 = dao.get(user1.getId());
-		assertThat(userget1.getName(), is(user1.getName()));
-		assertThat(userget1.getPassword(), is(user1.getPassword()));
+		this.checkSameUser(userget1, user1);
 		
 		User userget2 = dao.get(user2.getId());
-		assertThat(userget2.getName(), is(user2.getName()));
-		assertThat(userget2.getPassword(), is(user2.getPassword()));
+		this.checkSameUser(userget2, user2);
 	}
 	
 	@Test
@@ -259,5 +258,9 @@ public class UserDaoTest {
 		assertThat(user1.getId(), is(user2.getId()));
 		assertThat(user1.getName(), is(user2.getName()));
 		assertThat(user1.getPassword(), is(user2.getPassword()));
+		
+		assertThat(user1.getLevel(), is(user2.getLevel()));
+		assertThat(user1.getLogin(), is(user2.getLogin()));
+		assertThat(user1.getRecommend(), is(user2.getRecommend()));
 	}
 }

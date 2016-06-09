@@ -19,3 +19,6 @@
 /JdbcContext$2.class
 /UserDao$3.class
 /DuplicateUserIdException.class
+/UserDaoInterface.class
+/UserDaoJdbc.class
+/UserDaoJdbc$1.class
