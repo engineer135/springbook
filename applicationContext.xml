@@ -49,7 +49,12 @@
 	<!-- 서비스 클래스 빈 설정 -->
 	<bean id="userService" class="springbook.user.service.UserService">
 		<property name="userDao" ref="userDao"/>
+		<property name="userLevelUpgradePolicy" ref="userLevelUpgradePolicy"/>
 	</bean>
 	
-
+	<!-- 업그레이드 정책 인터페이스 빈 설정 -->
+	<bean id="userLevelUpgradePolicy" class="springbook.user.service.UserLevelUpgradePolicySpecial">
+		<property name="userDao" ref="userDao"/>
+	</bean>
+	
 </beans>

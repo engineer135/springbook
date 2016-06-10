@@ -1,2 +1,5 @@
 /UserService.class
 /UserServiceTest.class
+/UserLevelUpgradePolicy.class
+/UserLevelUpgradePolicyNormal.class
+/UserLevelUpgradePolicySpecial.class

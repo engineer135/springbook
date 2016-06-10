@@ -19,8 +19,11 @@ import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
 // 로그인수, 추천수는 상수로 만들어서 쓴다.
-import static springbook.user.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
-import static springbook.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
+//import static springbook.user.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
+//import static springbook.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
+
+import static springbook.user.service.UserLevelUpgradePolicyNormal.MIN_LOGCOUNT_FOR_SILVER;
+import static springbook.user.service.UserLevelUpgradePolicyNormal.MIN_RECCOMEND_FOR_GOLD;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations="/applicationContext.xml")
