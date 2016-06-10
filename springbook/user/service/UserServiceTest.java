@@ -27,6 +27,9 @@ public class UserServiceTest {
 	@Autowired
 	UserDao userDao;
 	
+	// User 오브젝트는 스프링이 IoC로 관리해주는 오브젝트가 아니기 때문에, 생성자 호출해서 테스트할 User 오브젝트를 만들면 된다.
+	User user;
+	
 	List<User> users;
 	@Before
 	public void setUp(){
@@ -37,6 +40,8 @@ public class UserServiceTest {
 				new User("madnite1", "이상호", "p4", Level.SILVER, 60, 30),
 				new User("green", "오민규", "p5", Level.GOLD, 100, 100)
 		);
+		
+		user = new User();
 	}
 	
 	@Test
@@ -78,6 +83,28 @@ public class UserServiceTest {
 		// DB에 저장된 결과를 가져와 확인한다.
 		assertThat(userWithLevelRead.getLevel(), is(userWithLevel.getLevel()));
 		assertThat(userWithoutLevelRead.getLevel(), is(userWithoutLevel.getLevel()));
+	}
+	
+	// User에 추가한 upgradeLevel() 메소드에 대한 테스트
+	@Test
+	public void upgradeLevel(){
+		Level[] levels = Level.values();
+		for(Level level : levels){
+			if(level.nextLevel() == null) continue;
+			user.setLevel(level);
+			user.upgradeLevel();
+			assertThat(user.getLevel(), is(level.nextLevel()));
+		}
+	}
+	
+	@Test(expected=IllegalStateException.class)
+	public void cannotUpgradeLevel(){
+		Level[] levels = Level.values();
+		for(Level level : levels){
+			if(level.nextLevel() != null) continue;
+			user.setLevel(level);
+			user.upgradeLevel();
+		}
 	}
 	
 	//userService 빈이 잘 등록됐는지 확인 후 삭제해도 되는 테스트

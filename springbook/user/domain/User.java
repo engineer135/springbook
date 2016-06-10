@@ -2,6 +2,16 @@ package springbook.user.domain;
 
 public class User {
 	
+	// UserService가 일일이 레벨 업그레이드 시에 User 의 어떤 필드를 수정한다는 로직보다는, User에게 레벨 업그레이드를 해야 하니 정보를 변경하라고 요청하는것이 낫다.
+	public void upgradeLevel(){
+		Level nextLevel = this.level.nextLevel();
+		if(nextLevel == null){
+			throw new IllegalStateException(this.level + "은 업그레이드가 불가능합니다.");
+		}else{
+			this.level = nextLevel;
+		}
+	}
+	
 	Level level;//사용자 레벨
 	int login;//로그인 횟수
 	int recommend;//추천수

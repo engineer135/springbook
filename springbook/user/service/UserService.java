@@ -39,11 +39,12 @@ public class UserService {
 	}
 	
 	private void upgradeLevel(User user){
-		if(user.getLevel() == Level.BASIC){
+		/*if(user.getLevel() == Level.BASIC){
 			user.setLevel(Level.SILVER);
 		}else if(user.getLevel() == Level.SILVER){
 			user.setLevel(Level.GOLD);
-		}
+		}*/
+		user.upgradeLevel(); // 다음 레벨 지정을 user에서 하도록 변경
 		userDao.update(user);
 	}
 
