@@ -18,6 +18,10 @@ import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
+// 로그인수, 추천수는 상수로 만들어서 쓴다.
+import static springbook.user.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
+import static springbook.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations="/applicationContext.xml")
 public class UserServiceTest {
@@ -34,11 +38,11 @@ public class UserServiceTest {
 	@Before
 	public void setUp(){
 		users = Arrays.asList(//배열을 리스트로 만들어주는 메소드.
-				new User("bumjin", "박범진", "p1", Level.BASIC, 49, 0),
-				new User("joytouch", "강명성", "p2", Level.BASIC, 50, 0),
-				new User("erwins", "신승한", "p3", Level.SILVER, 60, 29),
-				new User("madnite1", "이상호", "p4", Level.SILVER, 60, 30),
-				new User("green", "오민규", "p5", Level.GOLD, 100, 100)
+				new User("bumjin", "박범진", "p1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER-1, 0),
+				new User("joytouch", "강명성", "p2", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER, 0),
+				new User("erwins", "신승한", "p3", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD-1),
+				new User("madnite1", "이상호", "p4", Level.SILVER, 60, MIN_LOGCOUNT_FOR_SILVER),
+				new User("green", "오민규", "p5", Level.GOLD, 100, Integer.MAX_VALUE)
 		);
 		
 		user = new User();
@@ -54,16 +58,32 @@ public class UserServiceTest {
 		userService.upgradeLevels();
 		
 		// 각 사용자별 업그레이드 후의 예상 레벨 검증
-		checkLevel(users.get(0), Level.BASIC);
+		/*checkLevel(users.get(0), Level.BASIC);
 		checkLevel(users.get(1), Level.SILVER);
 		checkLevel(users.get(2), Level.SILVER);
 		checkLevel(users.get(3), Level.GOLD);
-		checkLevel(users.get(4), Level.GOLD);
+		checkLevel(users.get(4), Level.GOLD);*/
+		
+		// 업그레이드 확인 테스트 개선
+		checkLevelUpgraded(users.get(0), false);
+		checkLevelUpgraded(users.get(1), true);
+		checkLevelUpgraded(users.get(2), false);
+		checkLevelUpgraded(users.get(3), true);
+		checkLevelUpgraded(users.get(4), false);
 	}
 	
 	private void checkLevel(User user, Level expectedLevel){
 		User userUpdate = userDao.get(user.getId());
 		assertThat(userUpdate.getLevel(), is(expectedLevel));
+	}
+	
+	private void checkLevelUpgraded(User user, boolean upgraded){//어떤 레벨로 바뀔 것인가가 아니라, 다음 레벨로 업그레이드될 것인가 아닌가를 지정한다.
+		User userUpdate = userDao.get(user.getId());
+		if(upgraded){
+			assertThat(userUpdate.getLevel(), is(user.getLevel().nextLevel())); //업그레이드 했는지 확인
+		}else{
+			assertThat(userUpdate.getLevel(), is(user.getLevel()));// 업그레이드 안 했는지 확인
+		}
 	}
 	
 	@Test
