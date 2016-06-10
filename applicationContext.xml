@@ -45,5 +45,11 @@
 		dataSource 추가
 		<property name="dataSource" ref="dataSource"></property>
 	</bean> -->
+	
+	<!-- 서비스 클래스 빈 설정 -->
+	<bean id="userService" class="springbook.user.service.UserService">
+		<property name="userDao" ref="userDao"/>
+	</bean>
+	
 
 </beans>
