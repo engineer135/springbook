@@ -3,3 +3,5 @@
 /UserLevelUpgradePolicy.class
 /UserLevelUpgradePolicyNormal.class
 /UserLevelUpgradePolicySpecial.class
+/UserServiceTest$TestUserService.class
+/UserServiceTest$TestUserServiceException.class

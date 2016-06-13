@@ -3,6 +3,7 @@ package springbook.user.service;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,8 +23,8 @@ import springbook.user.domain.User;
 //import static springbook.user.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
 //import static springbook.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
 
-import static springbook.user.service.UserLevelUpgradePolicyNormal.MIN_LOGCOUNT_FOR_SILVER;
-import static springbook.user.service.UserLevelUpgradePolicyNormal.MIN_RECCOMEND_FOR_GOLD;
+import static springbook.user.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
+import static springbook.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations="/applicationContext.xml")
@@ -128,6 +129,49 @@ public class UserServiceTest {
 			user.setLevel(level);
 			user.upgradeLevel();
 		}
+	}
+	
+	//예외 발생 시 작업 취소 여부 테스트
+	@Test
+	public void upgradeAllOrNothing(){
+		UserService testUserService = new TestUserService(users.get(3).getId());//예외를 발생시킬 네번째 사용자의 id
+		testUserService.setUserDao(this.userDao);//userDao 수동 DI
+		
+		userDao.deleteAll();
+		for(User user : users){
+			userDao.add(user);
+		}
+		
+		try{
+			testUserService.upgradeLevels();
+			fail("TestUserServiceException expected"); //TestUserService는 업그레이드 작업중에 예외가 발생해야 한다. 정상 종료라면 문제가 있으니 실패!
+		}catch(TestUserServiceException e){
+			//TestUserService가 던져주는 예외를 잡아서 계속 진행되도록 한다. 그 외의 예외라면 테스트 실패!
+		}
+		
+		checkLevelUpgraded(users.get(1), false); //예외가 발생하기 전에 레벨 변경이 있었던 사용자의 레벨이 처음 상태로 바뀌었나 확인!
+	}
+	
+	// UserService의 트랜젝션 테스트를 위한 대역 클래스. 
+	// 스태틱 클래스로 만든다.
+	class TestUserService extends UserService{
+		private String id;
+		
+		private TestUserService(String id){
+			this.id = id; //예외를 발생시킬 User 오브젝트의 id를 지정할 수 있게 만든다.
+		}
+		
+		protected void upgradeLevel(User user){// 오버라이드
+			if(user.getId().equals(this.id)){
+				throw new TestUserServiceException();// 지정된 id의 User 오브젝트가 발견되면 예외를 던져서 작업을 강제로 중단시킨다.
+			}else{
+				super.upgradeLevel(user);
+			}
+		}
+	}
+	
+	class TestUserServiceException extends RuntimeException{
+		
 	}
 	
 	//userService 빈이 잘 등록됐는지 확인 후 삭제해도 되는 테스트
