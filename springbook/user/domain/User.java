@@ -47,13 +47,15 @@ public class User {
 	}
 	
 	// 레벨, 로그인 회수, 추천수 관련 생성자 추가
-	public User(String id, String name, String password, Level level, int login, int recommend){
+	// 이메일 추가
+	public User(String id, String name, String password, Level level, int login, int recommend, String email){
 		this.id = id;
 		this.name = name;
 		this.password = password;
 		this.level = level;
 		this.login = login;
 		this.recommend = recommend;
+		this.email = email;
 	}
 	
 	public User(){
@@ -63,6 +65,8 @@ public class User {
 	String id;
 	String name;
 	String password;
+	
+	String email;
 	
 	public String getId() {
 		return id;
@@ -81,6 +85,12 @@ public class User {
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	
 	

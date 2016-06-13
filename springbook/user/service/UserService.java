@@ -1,14 +1,25 @@
 package springbook.user.service;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.jta.JtaTransactionManager;
@@ -125,6 +136,7 @@ public class UserService {
 		}*/
 		user.upgradeLevel(); // 다음 레벨 지정을 user에서 하도록 변경
 		userDao.update(user);
+		sendUpgradeEMail(user);//이메일 발송 추가
 	}
 
 	public void add(User user) {
@@ -132,5 +144,42 @@ public class UserService {
 			user.setLevel(Level.BASIC); 
 		}
 		userDao.add(user);
+	}
+	
+	// 메일 발송
+	private void sendUpgradeEMail(User user){
+		
+		// JavaMail은 확장이나 지원이 불가능하도록 만들어진 가장 악명 높은 API 중 하나!
+		// 따라서 실제 메일서버 운영하지 않는다면 어떻게 테스트를 할 수가 없음.
+		// 그래서 Spring이 제공하는 추상화 기능을 사용한다.
+		/**
+		Properties props = new Properties();
+		props.put("mail.smtp.host", "mail.ksug.org");
+		Session s = Session.getInstance(props, null);
+		
+		MimeMessage message = new MimeMessage(s);
+		try{
+			message.setFrom(new InternetAddress("everafterk@naver.com"));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(user.getEmail()));
+			message.setSubject("upgrade 안내");
+			message.setText("사용자님의 등급이 "+ user.getLevel().name() + " 로 업그레이드되었습니다!");
+			Transport.send(message);
+		}catch(AddressException e){
+			throw new RuntimeException(e);
+		}catch (MessagingException e) {
+			throw new RuntimeException(e);
+		}
+		*/
+		
+		JavaMailSenderImpl mailSender = new JavaMailSenderImpl(); //MailSender 구현 클래스의 오브젝트 생성
+		mailSender.setHost("mail.server.com");
+		
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+		mailMessage.setTo(user.getEmail());
+		mailMessage.setFrom("everafterk@naver.com");
+		mailMessage.setSubject("Upgrade 안내");
+		mailMessage.setText("사용자님의 등급이 "+ user.getLevel().name() + " 로 업그레이드되었습니다!");
+		
+		mailSender.send(mailMessage);
 	}
 }
