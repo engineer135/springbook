@@ -8,6 +8,8 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +37,9 @@ public class UserServiceTest {
 	@Autowired
 	UserDao userDao;
 	
+	@Autowired
+	DataSource dataSource; //트랜잭션 적용을 위해 DI
+	
 	// User 오브젝트는 스프링이 IoC로 관리해주는 오브젝트가 아니기 때문에, 생성자 호출해서 테스트할 User 오브젝트를 만들면 된다.
 	User user;
 	
@@ -53,7 +58,7 @@ public class UserServiceTest {
 	}
 	
 	@Test
-	public void upgradeLevels(){
+	public void upgradeLevels() throws Exception{
 		userDao.deleteAll();
 		for(User user : users){
 			userDao.add(user);
@@ -133,9 +138,12 @@ public class UserServiceTest {
 	
 	//예외 발생 시 작업 취소 여부 테스트
 	@Test
-	public void upgradeAllOrNothing(){
+	public void upgradeAllOrNothing() throws Exception{
 		UserService testUserService = new TestUserService(users.get(3).getId());//예외를 발생시킬 네번째 사용자의 id
 		testUserService.setUserDao(this.userDao);//userDao 수동 DI
+		
+		//트랜잭션을 위해 추가
+		testUserService.setDataSource(this.dataSource);
 		
 		userDao.deleteAll();
 		for(User user : users){

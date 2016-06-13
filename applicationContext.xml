@@ -39,6 +39,7 @@
 		
 		<!--  jdbcContext -->
 		<!-- <property name="jdbcContext" ref="jdbcContext"></property> -->
+		
 	</bean>		
 	
 	<!-- <bean id="jdbcContext" class="springbook.user.dao.JdbcContext">
@@ -50,6 +51,8 @@
 	<bean id="userService" class="springbook.user.service.UserService">
 		<property name="userDao" ref="userDao"/>
 		<property name="userLevelUpgradePolicy" ref="userLevelUpgradePolicy"/>
+		<!-- 트랜잭션 처리를 위해 dataSource -->
+		<property name="dataSource" ref="dataSource"/>
 	</bean>
 	
 	<!-- 업그레이드 정책 인터페이스 빈 설정 -->
