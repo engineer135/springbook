@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
@@ -39,6 +40,9 @@ public class UserServiceTest {
 	
 	@Autowired
 	DataSource dataSource; //트랜잭션 적용을 위해 DI
+	
+	@Autowired
+	PlatformTransactionManager transactionManager;
 	
 	// User 오브젝트는 스프링이 IoC로 관리해주는 오브젝트가 아니기 때문에, 생성자 호출해서 테스트할 User 오브젝트를 만들면 된다.
 	User user;
@@ -143,7 +147,9 @@ public class UserServiceTest {
 		testUserService.setUserDao(this.userDao);//userDao 수동 DI
 		
 		//트랜잭션을 위해 추가
-		testUserService.setDataSource(this.dataSource);
+		//testUserService.setDataSource(this.dataSource);
+		
+		testUserService.setTransactionManager(transactionManager); //수동 DI
 		
 		userDao.deleteAll();
 		for(User user : users){

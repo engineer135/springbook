@@ -52,6 +52,12 @@
 		<property name="userDao" ref="userDao"/>
 		<property name="userLevelUpgradePolicy" ref="userLevelUpgradePolicy"/>
 		<!-- 트랜잭션 처리를 위해 dataSource -->
+		<!-- <property name="dataSource" ref="dataSource"/> -->
+		<!-- 트랜잭션 매니저 빈 등록 -->
+		<property name="transactionManager" ref="transactionManager"/>
+	</bean>
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
 	
