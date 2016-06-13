@@ -5,3 +5,5 @@
 /UserLevelUpgradePolicySpecial.class
 /UserServiceTest$TestUserService.class
 /UserServiceTest$TestUserServiceException.class
+/DummyMailSender.class
+/UserServiceTest$MockMailSender.class

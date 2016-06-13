@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,6 +15,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -44,6 +49,9 @@ public class UserServiceTest {
 	@Autowired
 	PlatformTransactionManager transactionManager;
 	
+	@Autowired
+	MailSender mailSender;
+	
 	// User 오브젝트는 스프링이 IoC로 관리해주는 오브젝트가 아니기 때문에, 생성자 호출해서 테스트할 User 오브젝트를 만들면 된다.
 	User user;
 	
@@ -61,12 +69,18 @@ public class UserServiceTest {
 		user = new User();
 	}
 	
+	
 	@Test
+	@DirtiesContext // 메일 발송 대상 확인하는 테스트. 컨텍스트의 DI 설정을 변경하는 테스트라는 것을 알려준다.
 	public void upgradeLevels() throws Exception{
 		userDao.deleteAll();
 		for(User user : users){
 			userDao.add(user);
 		}
+		
+		// 메일 발송 결과를 테스트할 수 있도록 목 오브젝트를 만들어 userService의 의존 오브젝트로 주입한다.
+		MockMailSender mockMailSender = new MockMailSender();
+		userService.setMailSender(mockMailSender);
 		
 		userService.upgradeLevels();
 		
@@ -83,6 +97,12 @@ public class UserServiceTest {
 		checkLevelUpgraded(users.get(2), false);
 		checkLevelUpgraded(users.get(3), true);
 		checkLevelUpgraded(users.get(4), false);
+		
+		// 목 오브젝트에 저장된 메일 수신자 목록을 가져와 업그레이드 대상과 일치하는지 확인한다!
+		List<String> request = mockMailSender.getRequests();
+		assertThat(request.size(), is(2));
+		assertThat(request.get(0), is(users.get(1).getEmail()));
+		assertThat(request.get(1), is(users.get(3).getEmail()));
 	}
 	
 	private void checkLevel(User user, Level expectedLevel){
@@ -151,6 +171,8 @@ public class UserServiceTest {
 		
 		testUserService.setTransactionManager(transactionManager); //수동 DI
 		
+		testUserService.setMailSender(mailSender);
+		
 		userDao.deleteAll();
 		for(User user : users){
 			userDao.add(user);
@@ -167,8 +189,8 @@ public class UserServiceTest {
 	}
 	
 	// UserService의 트랜젝션 테스트를 위한 대역 클래스. 
-	// 스태틱 클래스로 만든다.
-	class TestUserService extends UserService{
+	// 스태틱 클래스로 만든다. 왜 스태틱으로 만들까...!?!?? 참조 -> http://secretroute.tistory.com/entry/%EC%9E%90%EB%B0%94%EC%9D%98%E7%A5%9E-Vol1-Nested-Class
+	static class TestUserService extends UserService{
 		private String id;
 		
 		private TestUserService(String id){
@@ -184,7 +206,25 @@ public class UserServiceTest {
 		}
 	}
 	
-	class TestUserServiceException extends RuntimeException{
+	static class TestUserServiceException extends RuntimeException{
+		
+	}
+	
+	// 목 오브젝트로 만든 메일 전송 확인용 클래스
+	static class MockMailSender implements MailSender{
+		// UserService로부터 전송 요청을 받은 메일 주소를 저장해두고 이를 읽을 수 있게 한다.
+		private List<String> requests = new ArrayList<String>();
+		
+		public List<String> getRequests(){
+			return requests;
+		}
+		
+		public void send(SimpleMailMessage mailMessage) throws MailException {
+			requests.add(mailMessage.getTo()[0]); //전송 요청을 받은 이메일 주소를 저장해둔다. 간단하게 첫번째 수신자 메일 주소만 저장했다.
+		}
+		public void send(SimpleMailMessage... mailMessage) throws MailException {
+			
+		}
 		
 	}
 	
