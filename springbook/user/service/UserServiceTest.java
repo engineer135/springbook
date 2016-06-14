@@ -31,14 +31,17 @@ import springbook.user.domain.User;
 //import static springbook.user.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
 //import static springbook.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
 
-import static springbook.user.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
-import static springbook.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
+import static springbook.user.service.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
+import static springbook.user.service.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations="/applicationContext.xml")
 public class UserServiceTest {
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	UserServiceImpl userServiceImpl;
 	
 	@Autowired
 	UserDao userDao;
@@ -80,7 +83,7 @@ public class UserServiceTest {
 		
 		// 메일 발송 결과를 테스트할 수 있도록 목 오브젝트를 만들어 userService의 의존 오브젝트로 주입한다.
 		MockMailSender mockMailSender = new MockMailSender();
-		userService.setMailSender(mockMailSender);
+		userServiceImpl.setMailSender(mockMailSender);
 		
 		userService.upgradeLevels();
 		
@@ -163,15 +166,20 @@ public class UserServiceTest {
 	//예외 발생 시 작업 취소 여부 테스트
 	@Test
 	public void upgradeAllOrNothing() throws Exception{
-		UserService testUserService = new TestUserService(users.get(3).getId());//예외를 발생시킬 네번째 사용자의 id
+		TestUserService testUserService = new TestUserService(users.get(3).getId());//예외를 발생시킬 네번째 사용자의 id
 		testUserService.setUserDao(this.userDao);//userDao 수동 DI
 		
 		//트랜잭션을 위해 추가
 		//testUserService.setDataSource(this.dataSource);
 		
-		testUserService.setTransactionManager(transactionManager); //수동 DI
+		//testUserService.setTransactionManager(transactionManager); //수동 DI
 		
 		testUserService.setMailSender(mailSender);
+		
+		//트랜잭션 기능을 분리한 UserServiceTx는 예외 발생용으로 수정할 필요가 없으니 그대로 사용한다.
+		UserServiceTx txUserService = new UserServiceTx();
+		txUserService.setTransactionManager(transactionManager);
+		txUserService.setUserService(testUserService);
 		
 		userDao.deleteAll();
 		for(User user : users){
@@ -179,7 +187,7 @@ public class UserServiceTest {
 		}
 		
 		try{
-			testUserService.upgradeLevels();
+			txUserService.upgradeLevels();// 트랜잭션 기능을 분리한 오브젝트를 통해 예외 발생용 TestUserService가 호출되게 해야 한다.
 			fail("TestUserServiceException expected"); //TestUserService는 업그레이드 작업중에 예외가 발생해야 한다. 정상 종료라면 문제가 있으니 실패!
 		}catch(TestUserServiceException e){
 			//TestUserService가 던져주는 예외를 잡아서 계속 진행되도록 한다. 그 외의 예외라면 테스트 실패!
@@ -190,7 +198,7 @@ public class UserServiceTest {
 	
 	// UserService의 트랜젝션 테스트를 위한 대역 클래스. 
 	// 스태틱 클래스로 만든다. 왜 스태틱으로 만들까...!?!?? 참조 -> http://secretroute.tistory.com/entry/%EC%9E%90%EB%B0%94%EC%9D%98%E7%A5%9E-Vol1-Nested-Class
-	static class TestUserService extends UserService{
+	static class TestUserService extends UserServiceImpl{
 		private String id;
 		
 		private TestUserService(String id){

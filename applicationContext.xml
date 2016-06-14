@@ -47,15 +47,15 @@
 		<property name="dataSource" ref="dataSource"></property>
 	</bean> -->
 	
-	<!-- 서비스 클래스 빈 설정 -->
-	<bean id="userService" class="springbook.user.service.UserService">
-		<property name="userDao" ref="userDao"/>
-		<property name="userLevelUpgradePolicy" ref="userLevelUpgradePolicy"/>
-		<!-- 트랜잭션 처리를 위해 dataSource -->
-		<!-- <property name="dataSource" ref="dataSource"/> -->
+	<!-- 서비스 클래스 빈 설정 ++ 클라이언트(여기에선 userServiceTest)가 userServiceTx를 호출해서 사용하도록 만들어야 한다.-->
+	<bean id="userService" class="springbook.user.service.UserServiceTx">
 		<!-- 트랜잭션 매니저 빈 등록 -->
 		<property name="transactionManager" ref="transactionManager"/>
-		
+		<property name="userService" ref="userServiceImpl"/>
+	</bean>
+	
+	<bean id="userServiceImpl" class="springbook.user.service.UserServiceImpl">
+		<property name="userDao" ref="userDao"/>
 		<!-- 메일 발송 -->
 		<property name="mailSender" ref="mailSender"/>
 	</bean>

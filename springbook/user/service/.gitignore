@@ -7,3 +7,5 @@
 /UserServiceTest$TestUserServiceException.class
 /DummyMailSender.class
 /UserServiceTest$MockMailSender.class
+/UserServiceImpl.class
+/UserServiceTx.class
