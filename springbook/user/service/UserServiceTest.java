@@ -5,6 +5,13 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+// 로그인수, 추천수는 상수로 만들어서 쓴다.
+//import static springbook.user.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
+//import static springbook.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
+
+import static springbook.user.service.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
+import static springbook.user.service.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,16 +30,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import springbook.user.dao.MockUserDao;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
-
-// 로그인수, 추천수는 상수로 만들어서 쓴다.
-//import static springbook.user.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
-//import static springbook.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
-
-import static springbook.user.service.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
-import static springbook.user.service.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations="/applicationContext.xml")
@@ -76,36 +77,38 @@ public class UserServiceTest {
 	@Test
 	@DirtiesContext // 메일 발송 대상 확인하는 테스트. 컨텍스트의 DI 설정을 변경하는 테스트라는 것을 알려준다.
 	public void upgradeLevels() throws Exception{
-		userDao.deleteAll();
-		for(User user : users){
-			userDao.add(user);
-		}
+		//MockUserDao를 사용해 고립된 테스트를 만든다.
+		// 고립된 테스ㅡ에서는 테스트 대상 오브젝트를 직접 생성하면 된다.
+		UserServiceImpl userServiceImpl = new UserServiceImpl();
+		
+		// 목 오브젝트로 만든 UserDao를 직접 DI해준다.
+		MockUserDao mockUserDao = new MockUserDao(this.users);
+		userServiceImpl.setUserDao(mockUserDao);
 		
 		// 메일 발송 결과를 테스트할 수 있도록 목 오브젝트를 만들어 userService의 의존 오브젝트로 주입한다.
 		MockMailSender mockMailSender = new MockMailSender();
 		userServiceImpl.setMailSender(mockMailSender);
 		
-		userService.upgradeLevels();
+		userServiceImpl.upgradeLevels();
 		
-		// 각 사용자별 업그레이드 후의 예상 레벨 검증
-		/*checkLevel(users.get(0), Level.BASIC);
-		checkLevel(users.get(1), Level.SILVER);
-		checkLevel(users.get(2), Level.SILVER);
-		checkLevel(users.get(3), Level.GOLD);
-		checkLevel(users.get(4), Level.GOLD);*/
+		List<User> updated = mockUserDao.getUpdated(); //MockUserDao로부터 업데이트 결과를 가져온다.
 		
-		// 업그레이드 확인 테스트 개선
-		checkLevelUpgraded(users.get(0), false);
-		checkLevelUpgraded(users.get(1), true);
-		checkLevelUpgraded(users.get(2), false);
-		checkLevelUpgraded(users.get(3), true);
-		checkLevelUpgraded(users.get(4), false);
+		//업데이트 횟수와 정보를 확인
+		assertThat(updated.size(), is(2));
+		checkUserAndLevel(updated.get(0), "joytouch", Level.SILVER);
+		checkUserAndLevel(updated.get(1), "madnite1", Level.GOLD);
 		
 		// 목 오브젝트에 저장된 메일 수신자 목록을 가져와 업그레이드 대상과 일치하는지 확인한다!
 		List<String> request = mockMailSender.getRequests();
 		assertThat(request.size(), is(2));
 		assertThat(request.get(0), is(users.get(1).getEmail()));
 		assertThat(request.get(1), is(users.get(3).getEmail()));
+	}
+	
+	// id와 level을 확인하는 간단한 헬퍼 메소드
+	private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel){
+		assertThat(updated.getId(), is(expectedId));
+		assertThat(updated.getLevel(), is(expectedLevel));
 	}
 	
 	private void checkLevel(User user, Level expectedLevel){
