@@ -10,3 +10,4 @@
 /UserServiceImpl.class
 /UserServiceTx.class
 /TransactionHandler.class
+/TxProxyFactoryBean.class

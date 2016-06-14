@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
@@ -74,6 +75,9 @@ public class UserServiceTest {
 		user = new User();
 	}
 	
+	// 팩토리 빈을 가져오려면 애플리케이션 컨텍스트가 필요하다
+	@Autowired
+	ApplicationContext context;
 	
 	@Test
 	@DirtiesContext // 메일 발송 대상 확인하는 테스트. 컨텍스트의 DI 설정을 변경하는 테스트라는 것을 알려준다.
@@ -169,6 +173,7 @@ public class UserServiceTest {
 	
 	//예외 발생 시 작업 취소 여부 테스트
 	@Test
+	@DirtiesContext // 다이내믹 프록시 팩토리 빈을 직접 만들어 사용할때는 없앴다가 다시 등장한 컨텍스트 무효화 애노테이션
 	public void upgradeAllOrNothing() throws Exception{
 		TestUserService testUserService = new TestUserService(users.get(3).getId());//예외를 발생시킬 네번째 사용자의 id
 		testUserService.setUserDao(this.userDao);//userDao 수동 DI
@@ -186,11 +191,21 @@ public class UserServiceTest {
 		//txUserService.setUserService(testUserService);
 		
 		//다이내믹 프록시 적용
-		TransactionHandler txHandler = new TransactionHandler();
+		/*TransactionHandler txHandler = new TransactionHandler();
 		txHandler.setTarget(testUserService);
 		txHandler.setTransactionManager(transactionManager);
 		txHandler.setPattern("upgradeLevels");
-		UserService txUserService = (UserService) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] {UserService.class}, txHandler);
+		UserService txUserService = (UserService) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] {UserService.class}, txHandler);*/
+		
+		// 팩토리빈을 통한 다이내믹 프록시 DI
+		// 팩토리빈 자체를 가져와야 하므로 빈 이름에 &를 반드시 넣어야 한다.
+		TxProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", TxProxyFactoryBean.class); //테스트용 타깃 주입
+		txProxyFactoryBean.setTarget(testUserService);
+		UserService txUserService = (UserService) txProxyFactoryBean.getObject();//변경된 타깃 설정을 이용해서 트랜잭션 다이내믹 프록시 오브젝트를 다시 생성한다!
+		
+		// TxProxyFactoryBean은 계속 재사용할 수 있다. 트랜잭션 부가기능이 필요한 빈이 추가될 때마다 애플리케이션 컨텍스트에 빈 설정만 추가해주면 된다.
+		// 매번 트랜잭션 기능을 담은 UserServiceTx와 같은 프록시 클래스를 작성하는 번거로움을 완벽하게 제거할 수 있게 된 것!!!
+		// 자바의 다이내믹 프록시 + 스프링의 팩토리 빈을 함께 적용해서 얻을 수 있는 멋진 결과다!
 		
 		userDao.deleteAll();
 		for(User user : users){

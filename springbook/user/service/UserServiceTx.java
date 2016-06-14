@@ -16,6 +16,8 @@ import springbook.user.domain.User;
  * 대리자, 대리인과 같은 역할이라고 해서 프록시라고 부른다.
  * 
  * 그리고 프록시를 통해 최족적으로 요청을 위임받아 처리하는 실제 오브젝트를 타깃, 또는 실체(real subject)라고 부른다.
+ * 
+ * 이 클래스는, 팩토리 빈에서 UserService를 가져오게 수정하면서 필요없게 됨. 삭제해도 무방!
  */
 public class UserServiceTx implements UserService {
 	
