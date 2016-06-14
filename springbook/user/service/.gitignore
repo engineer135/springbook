@@ -9,3 +9,4 @@
 /UserServiceTest$MockMailSender.class
 /UserServiceImpl.class
 /UserServiceTx.class
+/TransactionHandler.class
