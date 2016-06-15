@@ -127,9 +127,14 @@
 	</bean> -->
 	
 	<!-- 클래스 필터 지원 포인트컷을 빈으로 등록! -->
-	<bean id="transactionPointcut" class="springbook.user.service.NameMatchClassMethodPointcut">
+	<!-- <bean id="transactionPointcut" class="springbook.user.service.NameMatchClassMethodPointcut">
 		<property name="mappedClassName" value="*ServiceImpl"/>
 		<property name="mappedName" value="upgrade*"/>
+	</bean> -->
+	
+	<!-- aspectj 포인트컷 적용 -->
+	<bean id="transactionPointcut" class="org.springframework.aop.aspectj.AspectJExpressionPointcut">
+		<property name="expression" value="execution(* *..*ServiceImpl.upgrade*(..))"/>
 	</bean>
 	
 	<!-- 어드바이저 빈 설정 -->
