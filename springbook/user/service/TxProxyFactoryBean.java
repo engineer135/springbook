@@ -5,6 +5,17 @@ import java.lang.reflect.Proxy;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
+/**
+ * @author Engineer135
+ *
+ * 프록시 팩토리 빈의 한계
+ * 타깃에 부가기능을 제공하는 것은 메소드 단위로 일어남.
+ * 한번에 여러 개의 클래스에 공통적인 부가기능 제공하는 것이 불가능(거의 비슷한 프록시 팩토리 빈의 설정이 중복되는 것을 막을 수 없음)
+ * 하나의 타깃에 여러개의 부가기능을 적용하려고 할 때도 문제. (트랜잭션 + 보안 기능 + 기능 검사 등등)
+ * xml 설정에 부가기능의 개수만큼 추가되어야 함.
+ * 또 한가지 문제점은 TransactionHandler 오브젝트가 프록시 팩토리 빈 개수만큼 만들어진다는 점!
+ * 
+ */
 public class TxProxyFactoryBean implements FactoryBean<Object>{ //생성할 오브젝트 타입을 지정할 수도 있지만 범용적으로 사용하기 위해 Object로 했다
 	
 	//TransactionHandler를 생성할 때 필요
