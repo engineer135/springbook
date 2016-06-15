@@ -1,6 +1,7 @@
 package springbook.user.service;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -12,7 +13,6 @@ import static org.junit.Assert.fail;
 import static springbook.user.service.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
 import static springbook.user.service.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
 
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +22,11 @@ import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.aop.ClassFilter;
+import org.springframework.aop.Pointcut;
 import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailException;
@@ -33,6 +37,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import springbook.learningtest.jdk.Hello;
+import springbook.learningtest.jdk.HelloTarget;
+import springbook.learningtest.jdk.UppercaseAdvice;
 import springbook.user.dao.MockUserDao;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
@@ -41,11 +48,18 @@ import springbook.user.domain.User;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations="/applicationContext.xml")
 public class UserServiceTest {
+	// 자동 프록시 생성기를 사용하기 때문에
+	// @Autowired를 통해 컨텍스트에서 가져오는 UserService 타입 오브젝트는 UserServiceImpl 오브젝트가 아니라 트랜잭션이 적용된 프록시여야 한다!
 	@Autowired
 	UserService userService;
 	
+	// 같은 타입의 빈이 두개 존재하기 때문에 필드 이름을 기준으로 주입될 빈이 결정된다.
+	// 자동 프록시 생성기에 의해 트랜잭션 부가기능이 testUserService 빈에 적용됐는지를 확인하는 것이 목적이다.
 	@Autowired
-	UserServiceImpl userServiceImpl;
+	UserService testUserService;
+	
+	//@Autowired
+	//UserServiceImpl userServiceImpl;
 	
 	@Autowired
 	UserDao userDao;
@@ -174,17 +188,17 @@ public class UserServiceTest {
 	
 	//예외 발생 시 작업 취소 여부 테스트
 	@Test
-	@DirtiesContext // 다이내믹 프록시 팩토리 빈을 직접 만들어 사용할때는 없앴다가 다시 등장한 컨텍스트 무효화 애노테이션
+	//@DirtiesContext // 다이내믹 프록시 팩토리 빈을 직접 만들어 사용할때는 없앴다가 다시 등장한 컨텍스트 무효화 애노테이션
 	public void upgradeAllOrNothing() throws Exception{
-		TestUserService testUserService = new TestUserService(users.get(3).getId());//예외를 발생시킬 네번째 사용자의 id
-		testUserService.setUserDao(this.userDao);//userDao 수동 DI
+		//TestUserService testUserService = new TestUserService(users.get(3).getId());//예외를 발생시킬 네번째 사용자의 id
+		//testUserService.setUserDao(this.userDao);//userDao 수동 DI
 		
 		//트랜잭션을 위해 추가
 		//testUserService.setDataSource(this.dataSource);
 		
 		//testUserService.setTransactionManager(transactionManager); //수동 DI
 		
-		testUserService.setMailSender(mailSender);
+		//testUserService.setMailSender(mailSender);
 		
 		//트랜잭션 기능을 분리한 UserServiceTx는 예외 발생용으로 수정할 필요가 없으니 그대로 사용한다.
 		//UserServiceTx txUserService = new UserServiceTx();
@@ -204,9 +218,9 @@ public class UserServiceTest {
 		//TxProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", TxProxyFactoryBean.class); //테스트용 타깃 주입
 		
 		// 스프링 프록시 팩토리 빈으로 변경
-		ProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", ProxyFactoryBean.class); //테스트용 타깃 주입
-		txProxyFactoryBean.setTarget(testUserService);
-		UserService txUserService = (UserService) txProxyFactoryBean.getObject();//변경된 타깃 설정을 이용해서 트랜잭션 다이내믹 프록시 오브젝트를 다시 생성한다!
+		//ProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", ProxyFactoryBean.class); //테스트용 타깃 주입
+		//txProxyFactoryBean.setTarget(testUserService);
+		//UserService txUserService = (UserService) txProxyFactoryBean.getObject();//변경된 타깃 설정을 이용해서 트랜잭션 다이내믹 프록시 오브젝트를 다시 생성한다!
 		
 		// TxProxyFactoryBean은 계속 재사용할 수 있다. 트랜잭션 부가기능이 필요한 빈이 추가될 때마다 애플리케이션 컨텍스트에 빈 설정만 추가해주면 된다.
 		// 매번 트랜잭션 기능을 담은 UserServiceTx와 같은 프록시 클래스를 작성하는 번거로움을 완벽하게 제거할 수 있게 된 것!!!
@@ -218,7 +232,7 @@ public class UserServiceTest {
 		}
 		
 		try{
-			txUserService.upgradeLevels();// 트랜잭션 기능을 분리한 오브젝트를 통해 예외 발생용 TestUserService가 호출되게 해야 한다.
+			this.testUserService.upgradeLevels();// 트랜잭션 기능을 분리한 오브젝트를 통해 예외 발생용 TestUserService가 호출되게 해야 한다.
 			fail("TestUserServiceException expected"); //TestUserService는 업그레이드 작업중에 예외가 발생해야 한다. 정상 종료라면 문제가 있으니 실패!
 		}catch(TestUserServiceException e){
 			//TestUserService가 던져주는 예외를 잡아서 계속 진행되도록 한다. 그 외의 예외라면 테스트 실패!
@@ -227,14 +241,54 @@ public class UserServiceTest {
 		checkLevelUpgraded(users.get(1), false); //예외가 발생하기 전에 레벨 변경이 있었던 사용자의 레벨이 처음 상태로 바뀌었나 확인!
 	}
 	
+	// 확장 포인트컷 테스트
+	@Test
+	public void classNamePointcutAdvisor(){
+		// 포인트컷 준비
+		NameMatchMethodPointcut classMethodPointcut = new NameMatchMethodPointcut(){
+			public ClassFilter getClassFilter(){//익명 내부 클래스 방식으로 클래스를 정의한다
+				return new ClassFilter(){
+					public boolean matches(Class<?> clazz){
+						return clazz.getSimpleName().startsWith("HelloT"); //클래스 이름이 HelloT로 시작하는 것만 선정한다.
+					}
+				};
+			}
+		};
+		// sayH로 시작하는 메소드 이름을 가진 메소드만 선정한다.
+		classMethodPointcut.setMappedName("sayH*");
+		
+		// 테스트
+		checkAdviced(new HelloTarget(), classMethodPointcut, true); //적용 클래스
+		
+		class HelloWorld extends HelloTarget{};
+		checkAdviced(new HelloWorld(), classMethodPointcut, false); //미적용 클래스
+		
+		class HelloToby extends HelloTarget{};
+		checkAdviced(new HelloToby(), classMethodPointcut, true); //적용 클래스
+	}
+	
+	private void checkAdviced(Object target, Pointcut pointcut, boolean adviced){
+		ProxyFactoryBean pfBean = new ProxyFactoryBean();
+		pfBean.setTarget(target);
+		pfBean.addAdvisor(new DefaultPointcutAdvisor(pointcut, new UppercaseAdvice()));
+		Hello proxiedHello = (Hello) pfBean.getObject();
+		
+		if(adviced){//메소드 선정 방식을 통해 어드바이스 적용
+			assertThat(proxiedHello.sayHello("Toby"), is("HELLO TOBY"));
+			assertThat(proxiedHello.sayHi("Toby"), is("HI TOBY"));
+			assertThat(proxiedHello.sayThankYou("Toby"), is("Thank You Toby"));
+		}else{//어드바이스 적용 대상 후보에서 아예 탈락
+			assertThat(proxiedHello.sayHello("Toby"), is("Hello Toby"));
+			assertThat(proxiedHello.sayHi("Toby"), is("Hi Toby"));
+			assertThat(proxiedHello.sayThankYou("Toby"), is("Thank You Toby"));
+		}
+	}
+	
 	// UserService의 트랜젝션 테스트를 위한 대역 클래스. 
 	// 스태틱 클래스로 만든다. 왜 스태틱으로 만들까...!?!?? 참조 -> http://secretroute.tistory.com/entry/%EC%9E%90%EB%B0%94%EC%9D%98%E7%A5%9E-Vol1-Nested-Class
-	static class TestUserService extends UserServiceImpl{
-		private String id;
-		
-		private TestUserService(String id){
-			this.id = id; //예외를 발생시킬 User 오브젝트의 id를 지정할 수 있게 만든다.
-		}
+	// 자동 프록시 생성기를 테스트하기 위해 이름 변경 TestUserService -> TestUserServiceImpl (어드바이스를 적용해주는 대상 클래스의 이름 패턴을 맞춰줘야함)
+	static class TestUserServiceImpl extends UserServiceImpl{
+		private String id = "madnite1"; // 테스트 픽스처의 users(3)의 id값을 고정시켜버렸다.
 		
 		protected void upgradeLevel(User user){// 오버라이드
 			if(user.getId().equals(this.id)){
@@ -247,6 +301,13 @@ public class UserServiceTest {
 	
 	static class TestUserServiceException extends RuntimeException{
 		
+	}
+	
+	// 자동 프록시 생성기로 프록시 생성이 되었는지 확인하는 테스트
+	@Test
+	public void advisorAutoProxyCreator(){
+		assertThat(userService, instanceOf(java.lang.reflect.Proxy.class));
+		assertThat(testUserService, instanceOf(java.lang.reflect.Proxy.class));
 	}
 	
 	// 목 오브젝트로 만든 메일 전송 확인용 클래스

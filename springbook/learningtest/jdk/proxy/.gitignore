@@ -4,3 +4,5 @@
 /DynamicProxyTest$HelloTarget.class
 /DynamicProxyTest$UppercaseAdvice.class
 /TransactionAdvice.class
+/NameMatchClassMethodPointcut.class
+/NameMatchClassMethodPointcut$SimpleClassFilter.class
