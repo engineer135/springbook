@@ -3,3 +3,4 @@
 /DynamicProxyTest$Hello.class
 /DynamicProxyTest$HelloTarget.class
 /DynamicProxyTest$UppercaseAdvice.class
+/TransactionAdvice.class

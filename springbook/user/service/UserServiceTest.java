@@ -22,6 +22,7 @@ import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailException;
@@ -199,7 +200,11 @@ public class UserServiceTest {
 		
 		// 팩토리빈을 통한 다이내믹 프록시 DI
 		// 팩토리빈 자체를 가져와야 하므로 빈 이름에 &를 반드시 넣어야 한다.
-		TxProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", TxProxyFactoryBean.class); //테스트용 타깃 주입
+		
+		//TxProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", TxProxyFactoryBean.class); //테스트용 타깃 주입
+		
+		// 스프링 프록시 팩토리 빈으로 변경
+		ProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", ProxyFactoryBean.class); //테스트용 타깃 주입
 		txProxyFactoryBean.setTarget(testUserService);
 		UserService txUserService = (UserService) txProxyFactoryBean.getObject();//변경된 타깃 설정을 이용해서 트랜잭션 다이내믹 프록시 오브젝트를 다시 생성한다!
 		

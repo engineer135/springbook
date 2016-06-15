@@ -11,3 +11,4 @@
 /UserServiceTx.class
 /TransactionHandler.class
 /TxProxyFactoryBean.class
+/TransactionAdvice.class
