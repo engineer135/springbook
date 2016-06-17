@@ -120,8 +120,20 @@
 	
 	
 	<!-- 트랜잭션 어드바이스 빈 설정 -->
-	<bean id="transactionAdvice" class="springbook.user.service.TransactionAdvice">
+	<!-- <bean id="transactionAdvice" class="springbook.user.service.TransactionAdvice">
 		<property name="transactionManager" ref="transactionManager"/>
+	</bean> -->
+	
+	<!-- 트랜잭션 어드바이스 -> 스프링이 제공하는 트랜잭션 인터셉터로 업그레이드! -->
+	<bean id="transactionAdvice" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionManager" ref="transactionManager"/>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="get*">PROPAGATION_REQUIRED, readOnly, timeout_30</prop>
+				<prop key="upgrade*">PROPAGATION_REQUIRES_NEW, ISOLATION_SERIALIZABLE</prop>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
 	</bean>
 	
 	<!-- 포인트 컷 빈 설정 -->
