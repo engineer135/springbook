@@ -88,7 +88,7 @@ public class UserDaoJdbc implements UserDao {
 					user.setName(rs.getString("name"));
 					user.setPassword(rs.getString("password"));
 					
-					user.setLevel(Level.valueOf(rs.getInt("level")));
+					//user.setLevel(Level.valueOf(rs.getInt("level")));
 					user.setLogin(rs.getInt("login"));
 					user.setRecommend(rs.getInt("recommend"));
 					
@@ -124,6 +124,7 @@ public class UserDaoJdbc implements UserDao {
 	}
 	
 	public List<User> getAll() {
+		System.out.println("getAll 실행");
 		return this.jdbcTemplate.query("select * from users order by id", 
 				this.userMapper
 		);
@@ -169,8 +170,8 @@ public class UserDaoJdbc implements UserDao {
 		System.out.println("업데이트 실행!");
 		System.out.println(user.getId());
 		System.out.println(user.getName());
-		int result = this.jdbcTemplate.update("update users set name=?, password=?, level=?, login=?, recommend=?, email=? where id=?"
-				, user.getName(), user.getPassword(), user.getLevel().intValue(), user.getLogin(), user.getRecommend(), user.getEmail(), user.getId() );
+		int result = this.jdbcTemplate.update("update users set name=?, password=?,  login=?, recommend=?, email=? where id=?"
+				, user.getName(), user.getPassword(), user.getLogin(), user.getRecommend(), user.getEmail(), user.getId() );
 		System.out.println(result);
 	}
 	

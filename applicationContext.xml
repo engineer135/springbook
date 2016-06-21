@@ -21,8 +21,12 @@
 	<!-- propery를 이용해 수정자 메소드에 값 주입, 이때, ref가 아닌 value로 넣는다. 다른 빈의 이름이 아닌 실제 파수정자 메소드의 파라미터로 전달되는 스트링 그 자체이기 때문 -->
 	<!-- 여기서 놀라운건 스프링이 프로퍼티의 값을 적절한 형태로 변환해준다는 것. 그래서 드라이버 클래스도 저렇게 넣어주면 알아서 형변환 시켜준다. -->
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-		<property name="driverClass" value="org.mariadb.jdbc.Driver"/>
-		<property name="url" value="jdbc:mariadb://localhost/springbook"/>
+		<!-- <property name="driverClass" value="org.mariadb.jdbc.Driver"/>
+		<property name="url" value="jdbc:mariadb://localhost/springbook"/> -->
+		
+		<property name="driverClass" value="oracle.jdbc.driver.OracleDriver"/>
+		<property name="url" value="jdbc:oracle:thin:@127.0.0.1:1521:XE"/>
+		
 		<property name="username" value="spring"/>
 		<property name="password" value="book"/>
 	</bean>
@@ -188,6 +192,7 @@
 	
 	
 	<!-- 자동 프록시 생성기 등록 -->
-	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+	<!-- tx:advice 와 aop 사용하면 이것들이 해준다. 그러면 안 써도 됨. -->
+	<!-- <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/> -->
 	
 </beans>

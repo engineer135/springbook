@@ -73,8 +73,8 @@ public class UserServiceTest {
 	@Autowired
 	DataSource dataSource; //트랜잭션 적용을 위해 DI
 	
-	@Autowired
-	PlatformTransactionManager transactionManager;
+	//@Autowired
+	//PlatformTransactionManager transactionManager;
 	
 	@Autowired
 	MailSender mailSender;
@@ -295,7 +295,7 @@ public class UserServiceTest {
 		
 		logger.info("log4j 테스트!");
 		
-		userService.getAll();
+		testUserService.getAll();
 	}
 	
 	// UserService의 트랜젝션 테스트를 위한 대역 클래스. 
@@ -337,8 +337,9 @@ public class UserServiceTest {
 	}*/
 	
 	// 자동 프록시 생성기로 프록시 생성이 되었는지 확인하는 테스트
-	//@Test
+	@Test
 	public void advisorAutoProxyCreator(){
+		//assertThat(userService, instanceOf(springbook.user.service.UserServiceImpl.class));
 		assertThat(userService, instanceOf(java.lang.reflect.Proxy.class));
 		assertThat(testUserService, instanceOf(java.lang.reflect.Proxy.class));
 	}
