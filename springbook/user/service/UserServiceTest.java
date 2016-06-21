@@ -38,6 +38,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Transactional;
 
 import springbook.learningtest.jdk.Hello;
 import springbook.learningtest.jdk.HelloTarget;
@@ -294,7 +295,7 @@ public class UserServiceTest {
 		
 		logger.info("log4j 테스트!");
 		
-		testUserService.getAll();
+		userService.getAll();
 	}
 	
 	// UserService의 트랜젝션 테스트를 위한 대역 클래스. 

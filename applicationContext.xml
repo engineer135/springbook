@@ -147,12 +147,16 @@
 		
 		일반 서비스 로직 / 배치 로직에 트랜잭션 설정을 다르게 하려면 tx:advice 를 두개 등록하고, aop:config에 aop:advisor 또한 두개로 분리하면 오케이.
 	 -->
-	<tx:advice id="transactionAdvice"> <!-- transaction-manager="transactionManager" 면 생략 가능 -->
+	 
+	<!-- @Transactional 애노테이션 사용하기 위해 추가 -->
+	<tx:annotation-driven/>
+	
+	<!-- <tx:advice id="transactionAdvice"> transaction-manager="transactionManager" 면 생략 가능
 		<tx:attributes>
 			<tx:method name="get*" read-only="true" timeout="30"/>
-			<tx:method name="*" /> <!-- propagation="REQUIRED" 면 생략 가능 -->
+			<tx:method name="*" /> propagation="REQUIRED" 면 생략 가능
 		</tx:attributes>
-	</tx:advice>
+	</tx:advice> -->
 	
 	<!-- 포인트 컷 빈 설정 -->
 	<!-- <bean id="transactionPointcut" class="org.springframework.aop.support.NameMatchMethodPointcut">
@@ -177,10 +181,10 @@
 	</bean> -->
 	
 	<!-- aop 네임스페이스 적용 -->
-	<aop:config>
-		<!-- <aop:pointcut id="transactionPointcut" expression="execution(* *..*ServiceImpl.upgrade*(..))"/> -->
+	<!-- <aop:config>
+		<aop:pointcut id="transactionPointcut" expression="execution(* *..*ServiceImpl.upgrade*(..))"/>
 		<aop:advisor advice-ref="transactionAdvice" pointcut="bean(*Service)"/>
-	</aop:config>
+	</aop:config> -->
 	
 	
 	<!-- 자동 프록시 생성기 등록 -->

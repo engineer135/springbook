@@ -12,7 +12,6 @@
 	<classpathentry kind="lib" path="lib/spring-expression-4.2.6.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-jdbc-3.1.1.RELEASE.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="lib/spring-dao-2.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/spring-test-3.1.1.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.39-bin.jar"/>
 	<classpathentry kind="lib" path="lib/spring-tx-4.2.6.RELEASE.jar"/>
