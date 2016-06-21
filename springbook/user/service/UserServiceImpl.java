@@ -168,4 +168,29 @@ public class UserServiceImpl implements UserService {
 		
 		this.mailSender.send(mailMessage);
 	}
+
+	@Override
+	public User get(String id) {
+		userDao.update(userDao.get(id));
+		return userDao.get(id);
+	}
+
+	@Override
+	public List<User> getAll() {
+		return userDao.getAll();
+	}
+
+	@Override
+	public void deleteAll() {
+		userDao.deleteAll();
+	}
+
+	@Override
+	public void update(User user) {
+		/*if(user.getId().equals("green")){
+			throw new RuntimeException();
+		}else{*/
+			userDao.update(user);
+		/*}*/
+	}
 }

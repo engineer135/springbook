@@ -19,6 +19,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,6 +50,9 @@ import springbook.user.domain.User;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations="/applicationContext.xml")
 public class UserServiceTest {
+	
+	public static final Logger logger = LogManager.getLogger();
+	
 	// 자동 프록시 생성기를 사용하기 때문에
 	// @Autowired를 통해 컨텍스트에서 가져오는 UserService 타입 오브젝트는 UserServiceImpl 오브젝트가 아니라 트랜잭션이 적용된 프록시여야 한다!
 	@Autowired
@@ -94,7 +99,7 @@ public class UserServiceTest {
 	@Autowired
 	ApplicationContext context;
 	
-	@Test
+	//@Test
 	@DirtiesContext // 메일 발송 대상 확인하는 테스트. 컨텍스트의 DI 설정을 변경하는 테스트라는 것을 알려준다.
 	public void upgradeLevels() throws Exception{
 		//MockUserDao를 사용해 고립된 테스트를 만든다.
@@ -145,7 +150,7 @@ public class UserServiceTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void add(){
 		userDao.deleteAll();
 		
@@ -165,7 +170,7 @@ public class UserServiceTest {
 	}
 	
 	// User에 추가한 upgradeLevel() 메소드에 대한 테스트
-	@Test
+	//@Test
 	public void upgradeLevel(){
 		Level[] levels = Level.values();
 		for(Level level : levels){
@@ -176,7 +181,7 @@ public class UserServiceTest {
 		}
 	}
 	
-	@Test(expected=IllegalStateException.class)
+	//@Test(expected=IllegalStateException.class)
 	public void cannotUpgradeLevel(){
 		Level[] levels = Level.values();
 		for(Level level : levels){
@@ -187,7 +192,7 @@ public class UserServiceTest {
 	}
 	
 	//예외 발생 시 작업 취소 여부 테스트
-	@Test
+	//@Test
 	//@DirtiesContext // 다이내믹 프록시 팩토리 빈을 직접 만들어 사용할때는 없앴다가 다시 등장한 컨텍스트 무효화 애노테이션
 	public void upgradeAllOrNothing() throws Exception{
 		//TestUserService testUserService = new TestUserService(users.get(3).getId());//예외를 발생시킬 네번째 사용자의 id
@@ -242,7 +247,7 @@ public class UserServiceTest {
 	}
 	
 	// 확장 포인트컷 테스트
-	@Test
+	//@Test
 	public void classNamePointcutAdvisor(){
 		// 포인트컷 준비
 		NameMatchMethodPointcut classMethodPointcut = new NameMatchMethodPointcut(){
@@ -284,18 +289,36 @@ public class UserServiceTest {
 		}
 	}
 	
+	@Test
+	public void readOnlyTransactionAttribute(){
+		
+		logger.info("log4j 테스트!");
+		
+		testUserService.getAll();
+	}
+	
 	// UserService의 트랜젝션 테스트를 위한 대역 클래스. 
 	// 스태틱 클래스로 만든다. 왜 스태틱으로 만들까...!?!?? 참조 -> http://secretroute.tistory.com/entry/%EC%9E%90%EB%B0%94%EC%9D%98%E7%A5%9E-Vol1-Nested-Class
 	// 자동 프록시 생성기를 테스트하기 위해 이름 변경 TestUserService -> TestUserServiceImpl (어드바이스를 적용해주는 대상 클래스의 이름 패턴을 맞춰줘야함)
-	static class TestUserServiceImpl extends UserServiceImpl{
-		private String id = "madnite1"; // 테스트 픽스처의 users(3)의 id값을 고정시켜버렸다.
+	static class TestUserService extends UserServiceImpl{
+		//private String id = "madnite1"; // 테스트 픽스처의 users(3)의 id값을 고정시켜버렸다.
 		
-		protected void upgradeLevel(User user){// 오버라이드
+		/*protected void upgradeLevel(User user){// 오버라이드
 			if(user.getId().equals(this.id)){
 				throw new TestUserServiceException();// 지정된 id의 User 오브젝트가 발견되면 예외를 던져서 작업을 강제로 중단시킨다.
 			}else{
 				super.upgradeLevel(user);
 			}
+		}*/
+		
+		// 트랜잭션 부가기능중 읽기전용 테스트를 위해 메소드 오버라이드
+		public List<User> getAll(){
+			for(User user : super.getAll()){
+				System.out.println(user.getId());
+				user.setName(user.getName()+"골");
+				super.update(user); //강제로 쓰기 시도를 한다. 여기서 읽기전용 속성으로 인한 예외가 발생해야 한다. 근데 예외 발생이 안됨......
+			}
+			return null;
 		}
 	}
 	
@@ -303,8 +326,17 @@ public class UserServiceTest {
 		
 	}
 	
+	/*@Test
+	public void transactionRollback(){
+		int i=0;
+		for(User user : userService.getAll()){
+			System.out.println(++i +"::::"+ user.getId());
+			userService.update(user); //강제로 쓰기 시도를 한다. 여기서 읽기전용 속성으로 인한 예외가 발생해야 한다.
+		}
+	}*/
+	
 	// 자동 프록시 생성기로 프록시 생성이 되었는지 확인하는 테스트
-	@Test
+	//@Test
 	public void advisorAutoProxyCreator(){
 		assertThat(userService, instanceOf(java.lang.reflect.Proxy.class));
 		assertThat(testUserService, instanceOf(java.lang.reflect.Proxy.class));
@@ -329,7 +361,7 @@ public class UserServiceTest {
 	}
 	
 	//userService 빈이 잘 등록됐는지 확인 후 삭제해도 되는 테스트
-	@Test
+	//@Test
 	public void bean(){
 		assertThat(this.userService, is(notNullValue()));
 	}

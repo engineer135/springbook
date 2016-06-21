@@ -2,10 +2,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		http://www.springframework.org/schema/aop
-		http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+		http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		">
 
 	<!-- @Bean 은 <bean 
 		메소드명은 id
@@ -59,11 +63,11 @@
 	</bean> -->
 	
 	<!-- 타깃 -->
-	<bean id="userServiceImpl" class="springbook.user.service.UserServiceImpl">
+	<!-- <bean id="userServiceImpl" class="springbook.user.service.UserServiceImpl">
 		<property name="userDao" ref="userDao"/>
-		<!-- 메일 발송 -->
+		메일 발송
 		<property name="mailSender" ref="mailSender"/>
-	</bean>
+	</bean> -->
 	
 	<!-- 팩토리빈에서 userService 가져오게 한다. 데코레이터 주석 처리 -->
 	<!-- <bean id="userService" class="springbook.user.service.TxProxyFactoryBean">
@@ -99,7 +103,7 @@
 	
 	<!-- 자동 프록시 생성기 테스트용 userService 등록 -->
 	<!-- parent 애트리뷰트 는 프로퍼티 정의를 포함해서 userService 빈의 설정을 상속받는다는 의미! -->
-	<bean id="testUserService" class="springbook.user.service.UserServiceTest$TestUserServiceImpl" parent="userService"/><!-- 스태틱 맴버 클래스는 $로 지정한다. -->
+	<bean id="testUserService" class="springbook.user.service.UserServiceTest$TestUserService" parent="userService"/><!-- 스태틱 맴버 클래스는 $로 지정한다. -->
 	
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource"/>
@@ -125,7 +129,7 @@
 	</bean> -->
 	
 	<!-- 트랜잭션 어드바이스 -> 스프링이 제공하는 트랜잭션 인터셉터로 업그레이드! -->
-	<bean id="transactionAdvice" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+	<!-- <bean id="transactionAdvice" class="org.springframework.transaction.interceptor.TransactionInterceptor">
 		<property name="transactionManager" ref="transactionManager"/>
 		<property name="transactionAttributes">
 			<props>
@@ -134,7 +138,21 @@
 				<prop key="*">PROPAGATION_REQUIRED</prop>
 			</props>
 		</property>
-	</bean>
+	</bean> -->
+	
+	<!-- tx 네임스페이스 이용 -->
+	<!-- 
+		트랜잭션 포인트컷 표현식은 타입 패턴이나(클래스보다는 인터페이스 타입을 기준으로 타입 패턴을 적용하는 것이 좋다!)
+		 빈 이름을 이용(execution() 대신 bean(*Service) 이런 식으로... 빈의 아이디 기준으로 적용됨)
+		
+		일반 서비스 로직 / 배치 로직에 트랜잭션 설정을 다르게 하려면 tx:advice 를 두개 등록하고, aop:config에 aop:advisor 또한 두개로 분리하면 오케이.
+	 -->
+	<tx:advice id="transactionAdvice"> <!-- transaction-manager="transactionManager" 면 생략 가능 -->
+		<tx:attributes>
+			<tx:method name="get*" read-only="true" timeout="30"/>
+			<tx:method name="*" /> <!-- propagation="REQUIRED" 면 생략 가능 -->
+		</tx:attributes>
+	</tx:advice>
 	
 	<!-- 포인트 컷 빈 설정 -->
 	<!-- <bean id="transactionPointcut" class="org.springframework.aop.support.NameMatchMethodPointcut">
@@ -149,7 +167,7 @@
 	
 	<!-- aspectj 포인트컷 적용 -->
 	<!-- <bean id="transactionPointcut" class="org.springframework.aop.aspectj.AspectJExpressionPointcut">
-		<property name="expression" value="execution(* *..*ServiceImpl.upgrade*(..))"/>
+		<property name="expression" value="execution(* *..*ServiceImpl.*(..))"/>
 	</bean> -->
 	
 	<!-- 어드바이저 빈 설정 -->
@@ -160,8 +178,8 @@
 	
 	<!-- aop 네임스페이스 적용 -->
 	<aop:config>
-		<aop:pointcut id="transactionPointcut" expression="execution(* *..*ServiceImpl.upgrade*(..))"/>
-		<aop:advisor advice-ref="transactionAdvice" pointcut-ref="transactionPointcut"/>
+		<!-- <aop:pointcut id="transactionPointcut" expression="execution(* *..*ServiceImpl.upgrade*(..))"/> -->
+		<aop:advisor advice-ref="transactionAdvice" pointcut="bean(*Service)"/>
 	</aop:config>
 	
 	

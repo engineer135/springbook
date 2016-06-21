@@ -25,6 +25,7 @@ public class TransactionAdvice implements MethodInterceptor {
 			// 콜백을 호출해서 타깃의 메소드를 실행한다.
 			// 타깃 메소드 호출 전후로 필요한 부가기능을 넣을 수 있다.
 			// 경우에 따라서 타깃이 아예 호출되지 않게 하거나 재시도를 위한 반복적인 호출도 가능하다.
+			System.out.println("트랜잭션 어드바이스 실행!");
 			Object ret = invocation.proceed();
 			this.transactionManager.commit(status);
 			return ret;

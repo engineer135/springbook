@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -163,8 +165,12 @@ public class UserDaoJdbc implements UserDao {
 	}
 
 	public void update(User user) {
-		this.jdbcTemplate.update("update users set name=?, password=?, level=?, login=?, recommend=?, email=? where id=?"
+		System.out.println("업데이트 실행!");
+		System.out.println(user.getId());
+		System.out.println(user.getName());
+		int result = this.jdbcTemplate.update("update users set name=?, password=?, level=?, login=?, recommend=?, email=? where id=?"
 				, user.getName(), user.getPassword(), user.getLevel().intValue(), user.getLogin(), user.getRecommend(), user.getEmail(), user.getId() );
+		System.out.println(result);
 	}
 	
 	/**
