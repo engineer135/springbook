@@ -2,3 +2,6 @@
 /SqlRetrievalFailureException.class
 /SimpleSqlService.class
 /XmlSqlService.class
+/SqlRegistry.class
+/SqlReader.class
+/SqlNotFoundException.class
