@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
+import springbook.user.sqlservice.SqlService;
 
 public class UserDaoJdbc implements UserDao {
 	/*
@@ -103,6 +104,13 @@ public class UserDaoJdbc implements UserDao {
 	public void setSqlAdd(String sqlAdd) {
 		this.sqlAdd = sqlAdd;
 	}
+	
+	// sqlService 프로퍼티 추가
+	private SqlService sqlService;
+	
+	public void setSqlService(SqlService sqlService) {
+		this.sqlService = sqlService;
+	}
 
 	public void add(final User user) {
 		//this.jdbcContext.executeSqlWithParam("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
@@ -121,7 +129,7 @@ public class UserDaoJdbc implements UserDao {
 			}
 		}*/
 		// jdbcTemplate 로 갈아타기 2단계 (내장 콜백 사용)
-		this.jdbcTemplate.update(this.sqlAdd
+		this.jdbcTemplate.update(this.sqlService.getSql("userAdd")
 				, user.getId(), user.getName(), user.getPassword(), user.getLevel().intValue(), user.getLogin(), user.getRecommend(), user.getEmail());
 	}
 	

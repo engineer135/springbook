@@ -52,9 +52,20 @@
 		<!-- <property name="jdbcContext" ref="jdbcContext"></property> -->
 		
 		<!-- SQL 문 넣기 -->
-		<property name="sqlAdd" value="insert into users(id, name, password, level, login, recommend, email) values(?,?,?,?,?,?,?)"/>
+		<!-- <property name="sqlAdd" value="insert into users(id, name, password, level, login, recommend, email) values(?,?,?,?,?,?,?)"/> -->
+		
+		<!-- sqlService 추가! -->
+		<property name="sqlService" ref="sqlService"/>
 		
 	</bean>		
+	
+	<bean id="sqlService" class="springbook.user.sqlservice.SimpleSqlService">
+		<property name="sqlMap">
+			<map>
+				<entry key="userAdd" value="insert into users(id, name, password, level, login, recommend, email) values(?,?,?,?,?,?,?)"/>
+			</map>
+		</property>
+	</bean>
 	
 	<!-- <bean id="jdbcContext" class="springbook.user.dao.JdbcContext">
 		dataSource 추가

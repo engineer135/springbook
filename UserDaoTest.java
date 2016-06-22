@@ -131,7 +131,7 @@ public class UserDaoTest {
 	
 	
 	// jUnit 프레임워크를 사용한 테스트
-	//@Test
+	@Test
 	public void addAndGet() throws SQLException {
 		/*
 		// UserDao가 아닌 클라이언트가 사용할 오브젝트를 생성자를 통해 전달해준다.
