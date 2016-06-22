@@ -5,3 +5,6 @@
 /SqlRegistry.class
 /SqlReader.class
 /SqlNotFoundException.class
+/BaseSqlService.class
+/HashMapSqlRegistry.class
+/JaxbXmlSqlReader.class
