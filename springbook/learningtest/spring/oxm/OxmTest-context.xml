@@ -5,8 +5,14 @@
 	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 	">
 	
-	<bean id="unmarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+	<!-- JAXB 구현 -->
+	<!-- <bean id="unmarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
 		<property name="contextPath" value="springbook.user.sqlservice.jaxb"/>
+	</bean> -->
+	
+	<!-- Castor 구현 -->
+	<bean id="unmarshaller" class="org.springframework.oxm.castor.CastorMarshaller">
+		<property name="mappingLocation" value="springbook/learningtest/spring/oxm/mapping.xml"/>
 	</bean>
 	
 </beans>
