@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="http://www.epril.com/sqlmap ./sqlmap.xsd">
 	
-	<sql key="add">insert</sql>
+	<sql key="userAdd">insert into users(id, name, password, level, login, recommend, email) values(?,?,?,?,?,?,?)</sql>
 	<sql key="get">select</sql>
 	<sql key="delete">delete</sql>
 	

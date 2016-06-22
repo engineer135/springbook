@@ -59,12 +59,7 @@
 		
 	</bean>		
 	
-	<bean id="sqlService" class="springbook.user.sqlservice.SimpleSqlService">
-		<property name="sqlMap">
-			<map>
-				<entry key="userAdd" value="insert into users(id, name, password, level, login, recommend, email) values(?,?,?,?,?,?,?)"/>
-			</map>
-		</property>
+	<bean id="sqlService" class="springbook.user.sqlservice.XmlSqlService">
 	</bean>
 	
 	<!-- <bean id="jdbcContext" class="springbook.user.dao.JdbcContext">
