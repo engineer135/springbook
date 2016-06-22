@@ -187,10 +187,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void update(User user) {
-		if(user.getId().equals("green")){
+		/*if(user.getId().equals("green")){
 			throw new RuntimeException();
-		}else{
+		}else{*/
 			userDao.update(user);
-		}
+		/*}*/
 	}
 }

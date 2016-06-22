@@ -88,7 +88,7 @@ public class UserDaoJdbc implements UserDao {
 					user.setName(rs.getString("name"));
 					user.setPassword(rs.getString("password"));
 					
-					//user.setLevel(Level.valueOf(rs.getInt("level")));
+					user.setLevel(Level.valueOf(rs.getInt("level")));
 					user.setLogin(rs.getInt("login"));
 					user.setRecommend(rs.getInt("recommend"));
 					
@@ -97,6 +97,13 @@ public class UserDaoJdbc implements UserDao {
 				}
 	};
 	
+	// SQL을 XML로 빼기 위해 추가
+	private String sqlAdd;
+	
+	public void setSqlAdd(String sqlAdd) {
+		this.sqlAdd = sqlAdd;
+	}
+
 	public void add(final User user) {
 		//this.jdbcContext.executeSqlWithParam("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
 		
@@ -114,7 +121,7 @@ public class UserDaoJdbc implements UserDao {
 			}
 		}*/
 		// jdbcTemplate 로 갈아타기 2단계 (내장 콜백 사용)
-		this.jdbcTemplate.update("insert into users(id, name, password, level, login, recommend, email) values(?,?,?,?,?,?,?)"
+		this.jdbcTemplate.update(this.sqlAdd
 				, user.getId(), user.getName(), user.getPassword(), user.getLevel().intValue(), user.getLogin(), user.getRecommend(), user.getEmail());
 	}
 	
