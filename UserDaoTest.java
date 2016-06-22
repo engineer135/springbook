@@ -227,7 +227,7 @@ public class UserDaoTest {
 		dao.get("unknown_id");//이 메소드 실행 중에 예외가 발생해야 한다. 예외가 발생하지 않으면 테스트가 실패한다. 해당 id의 정보가 없으니까.. rs.next 에서 로우가 없으므로 에러!
 	}
 	
-	//@Test
+	@Test
 	public void getAll() throws SQLException{
 		dao.deleteAll();
 		

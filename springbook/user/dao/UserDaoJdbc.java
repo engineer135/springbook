@@ -134,13 +134,13 @@ public class UserDaoJdbc implements UserDao {
 	}
 	
 	public User get(String id) {
-		return this.jdbcTemplate.queryForObject("select * from users where id = ?", new Object[] {id}
+		return this.jdbcTemplate.queryForObject(this.sqlService.getSql("userGet"), new Object[] {id}
 			, this.userMapper);
 	}
 	
 	public List<User> getAll() {
 		System.out.println("getAll 실행");
-		return this.jdbcTemplate.query("select * from users order by id", 
+		return this.jdbcTemplate.query(this.sqlService.getSql("userGetAll"), 
 				this.userMapper
 		);
 	}
@@ -158,7 +158,7 @@ public class UserDaoJdbc implements UserDao {
 		);*/
 		
 		// jdbcTemplate 로 갈아타기 2단계 (내장 콜백 사용)
-		this.jdbcTemplate.update("delete from users");
+		this.jdbcTemplate.update(this.sqlService.getSql("userDeleteAll"));
 	}
 	
 	public int getCount() {
@@ -178,14 +178,14 @@ public class UserDaoJdbc implements UserDao {
 		);*/
 		
 		// jdbcTemplate 로 갈아타기 2단계
-		return this.jdbcTemplate.queryForInt("select count(*) from users");
+		return this.jdbcTemplate.queryForInt(this.sqlService.getSql("userGetCount"));
 	}
 
 	public void update(User user) {
 		System.out.println("업데이트 실행!");
 		System.out.println(user.getId());
 		System.out.println(user.getName());
-		int result = this.jdbcTemplate.update("update users set name=?, password=?,  login=?, recommend=?, email=? where id=?"
+		int result = this.jdbcTemplate.update(this.sqlService.getSql("userUpdate")
 				, user.getName(), user.getPassword(), user.getLogin(), user.getRecommend(), user.getEmail(), user.getId() );
 		System.out.println(result);
 	}
