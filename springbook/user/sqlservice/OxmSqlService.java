@@ -15,6 +15,9 @@ import springbook.user.sqlservice.jaxb.Sqlmap;
 
 public class OxmSqlService implements SqlService {
 	
+	// 코드 중복을 막기 위해 BaseSqlService로 위임해서 처리한다.
+	private final BaseSqlService baseSqlService = new BaseSqlService();
+	
 	// oxmSqlReader와 달리 단지 디폴트 오브젝트로 만들어진 프로퍼티다.
 	// 따라서 필요에 따라 DI를 통해 교체 가능하다.
 	private SqlRegistry sqlRegistry = new HashMapSqlRegistry();
@@ -76,16 +79,25 @@ public class OxmSqlService implements SqlService {
 	
 	@PostConstruct
 	public void loadSql(){
-		this.oxmSqlReader.read(this.sqlRegistry);
+		// OxmSqlService의 프로퍼티를 통해서 초기화된 SqlReader와 SqlRegistry를 실제 작업을 위임할 대상인 baseSqlService에 주입한다.
+		this.baseSqlService.setSqlReader(this.oxmSqlReader);
+		this.baseSqlService.setSqlRegistry(this.sqlRegistry);
+		
+		this.baseSqlService.loadSql();
+		
+		//this.oxmSqlReader.read(this.sqlRegistry);
 	}
 	
 	@Override
 	public String getSql(String key) throws SqlRetrievalFailureException {
-		try{
+		// SQL을 찾아오는 작업도 baseSqlService에 위임한다.
+		return this.baseSqlService.getSql(key);
+		
+		/*try{
 			return this.sqlRegistry.findSql(key);
 		}catch(SqlNotFoundException e){
 			throw new SqlRetrievalFailureException(e);
-		}
+		}*/
 	}
 
 }
