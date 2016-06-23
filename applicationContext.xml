@@ -73,7 +73,7 @@
 	</bean> -->
 	
 	<!-- sqlReader, sqlRegistry 독립적인 빈 설정으로 변경 -->
-	<bean id="sqlService" class="springbook.user.sqlservice.BaseSqlService">
+	<!-- <bean id="sqlService" class="springbook.user.sqlservice.BaseSqlService">
 		<property name="sqlReader" ref="sqlReader"/>
 		<property name="sqlRegistry" ref="sqlRegistry"/>
 	</bean>
@@ -83,6 +83,15 @@
 	</bean>
 	
 	<bean id="sqlRegistry" class="springbook.user.sqlservice.HashMapSqlRegistry">
+	</bean> -->
+	
+	<!-- OXM을 적용한 SqlService 설정 -->
+	<bean id="sqlService" class="springbook.user.sqlservice.OxmSqlService">
+		<property name="unmarshaller" ref="unmarshaller"/>
+	</bean>
+	
+	<bean id="unmarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+		<property name="contextPath" value="springbook.user.sqlservice.jaxb"/>
 	</bean>
 	
 	<!-- <bean id="jdbcContext" class="springbook.user.dao.JdbcContext">

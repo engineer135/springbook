@@ -8,3 +8,5 @@
 /BaseSqlService.class
 /HashMapSqlRegistry.class
 /JaxbXmlSqlReader.class
+/OxmSqlService.class
+/OxmSqlService$OxmSqlReader.class
