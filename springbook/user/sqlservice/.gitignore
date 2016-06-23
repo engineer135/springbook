@@ -10,3 +10,6 @@
 /JaxbXmlSqlReader.class
 /OxmSqlService.class
 /OxmSqlService$OxmSqlReader.class
+/UpdatableSqlRegistry.class
+/SqlUpdateFailureException.class
+/ConcurrentHashMapSqlRegistry.class

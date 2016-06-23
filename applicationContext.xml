@@ -91,10 +91,17 @@
 		<property name="sqlmap" value="classpath:springbook/user/dao/sqlmap.xml"/>
 		<!-- <property name="sqlmap" value="file:C:/Users/Administrator/workspace/springbook/springbook/learningtest/spring/oxm/sqlmap.xml"/>
 		<property name="sqlmap" value="http://www.epril.com/resources/sqlmap.xml"/> -->
+		
+		<!-- 쿼리 수정 가능 레지스트리 적용 -->
+		<property name="sqlRegistry" ref="sqlRegistry"/>
+		
 	</bean>
 	
 	<bean id="unmarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
 		<property name="contextPath" value="springbook.user.sqlservice.jaxb"/>
+	</bean>
+	
+	<bean id="sqlRegistry" class="springbook.user.sqlservice.updatable.ConcurrentHashMapSqlRegistry">
 	</bean>
 	
 	<!-- <bean id="jdbcContext" class="springbook.user.dao.JdbcContext">
