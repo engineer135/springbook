@@ -218,7 +218,7 @@
 	<tx:annotation-driven/>
 	
 	<!-- 코드의 애노테이션을 이용해서 부가적인 빈 설정 또는 초기화 작업을 해주는 후처리기를 등록 -->
-	<context:annotation-config/>
+	<!-- <context:annotation-config/> -->
 	
 	<!-- <tx:advice id="transactionAdvice"> transaction-manager="transactionManager" 면 생략 가능
 		<tx:attributes>
