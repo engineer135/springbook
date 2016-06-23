@@ -88,6 +88,9 @@
 	<!-- OXM을 적용한 SqlService 설정 -->
 	<bean id="sqlService" class="springbook.user.sqlservice.OxmSqlService">
 		<property name="unmarshaller" ref="unmarshaller"/>
+		<property name="sqlmap" value="classpath:springbook/user/dao/sqlmap.xml"/>
+		<!-- <property name="sqlmap" value="file:C:/Users/Administrator/workspace/springbook/springbook/learningtest/spring/oxm/sqlmap.xml"/>
+		<property name="sqlmap" value="http://www.epril.com/resources/sqlmap.xml"/> -->
 	</bean>
 	
 	<bean id="unmarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
