@@ -5,12 +5,14 @@ import java.sql.Driver;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -48,6 +50,17 @@ public class AppContext {
 	// 스프링이 프로퍼티 값을 저장해놓는 Enviroment 타입의 환경 오브젝트
 	@Autowired
 	Environment env;
+	
+	// Environment를 쓰는 대신 치환자를 이용하는 방법도 있음
+	@Value("${db.driverClass}") Class<? extends Driver> driverClass;
+	@Value("${db.url}") String url;
+	@Value("${db.username}") String username;
+	@Value("${db.password}") String password;
+	
+	@Bean
+	public static PropertySourcesPlaceholderConfigurer placeholderConfigurer(){
+		return new PropertySourcesPlaceholderConfigurer();
+	}
 
 	@Bean
 	public DataSource dataSource(){
@@ -55,14 +68,21 @@ public class AppContext {
 		// DataSource에는 setUrl이나 setUsername 같은 수정자 메소드가 없거든. 우린 이게 필요한데!
 		SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
 		
-		try{
+		// 1. 프로퍼티 값 사용할때 Environment 이용 방식
+		/*try{
 			dataSource.setDriverClass((Class<? extends Driver>) Class.forName(env.getProperty("db.driverClass")));
 		}catch(ClassNotFoundException e){
 			throw new RuntimeException(e);
 		}
 		dataSource.setUrl(env.getProperty("db.url"));
 		dataSource.setUsername(env.getProperty("db.username"));
-		dataSource.setPassword(env.getProperty("db.password"));
+		dataSource.setPassword(env.getProperty("db.password"));*/
+		
+		// 2. 치환자 이용 방식(깔끔하긴 하나 PropertySourcesPlaceholderConfigurer 필드를 또 선언해줘야 한다는게.. 둘중에 편한거 쓸것)
+		dataSource.setDriverClass(this.driverClass);
+		dataSource.setUrl(this.url);
+		dataSource.setUsername(this.username);
+		dataSource.setPassword(this.password);
 		
 		return dataSource;
 	}
