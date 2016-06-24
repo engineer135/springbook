@@ -69,8 +69,15 @@ public class TestApplicationContext {
 	@Bean
 	public UserDao userDao(){
 		UserDaoJdbc userDao = new UserDaoJdbc();
-		userDao.setDataSource(this.dataSource());
-		userDao.setSqlService(this.sqlService());
+		
+		// 이걸 자동 와이어링 하고 싶어? 그럼 UserDaoJdbc 의 setDataSource 메소드 or DataSource 필드에 @Autowired 붙여주면 됨
+		// But DastaSource는 수정자 메소드가 아닌 필드에 붙여야 함
+		// 왜냐면 수정자 메소드가 단순히 주어진 오브젝트를 필드에 저장하는 것이 아니라 JdbcTemplate를 생성해서 저장해주기 때문이다.
+		//userDao.setDataSource(this.dataSource());
+		
+		// 이것도 마찬가지로 자동 와이어링~
+		// userDao.setSqlService(this.sqlService());
+		
 		return userDao;
 	}
 	

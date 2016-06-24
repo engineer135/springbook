@@ -6,11 +6,9 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.transaction.annotation.Transactional;
 
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
@@ -54,6 +52,7 @@ public class UserDaoJdbc implements UserDao {
 	}*/
 	
 	// DataSource 인터페이스로 변환
+	@Autowired
 	public void setDataSource(DataSource dataSource) {
 		//this.dataSource = dataSource;
 		
@@ -106,11 +105,12 @@ public class UserDaoJdbc implements UserDao {
 	}
 	
 	// sqlService 프로퍼티 추가
+	@Autowired
 	private SqlService sqlService;
 	
-	public void setSqlService(SqlService sqlService) {
+	/*public void setSqlService(SqlService sqlService) {
 		this.sqlService = sqlService;
-	}
+	}*/
 
 	public void add(final User user) {
 		//this.jdbcContext.executeSqlWithParam("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
