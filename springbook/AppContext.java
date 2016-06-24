@@ -1,31 +1,15 @@
 package springbook;
 
-import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.HSQL;
-
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.mail.MailSender;
-import org.springframework.oxm.Unmarshaller;
-import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import springbook.user.dao.UserDao;
-import springbook.user.service.DummyMailSender;
-import springbook.user.service.UserService;
-import springbook.user.service.UserServiceTest.TestUserService;
-import springbook.user.sqlservice.OxmSqlService;
-import springbook.user.sqlservice.SqlRegistry;
-import springbook.user.sqlservice.SqlService;
-import springbook.user.sqlservice.updatable.EmbeddedDbSqlRegistry;
 
 @Configuration
 //@ImportResource("/applicationContext.xml") //XML의 DI 정보를 활용한다.
@@ -35,6 +19,9 @@ import springbook.user.sqlservice.updatable.EmbeddedDbSqlRegistry;
 
 //자동 빈 스캔 기능을 사용하겠어요.
 @ComponentScan(basePackages="springbook.user")
+
+//보조 설정정보 임포트
+@Import(SqlServiceContext.class)
 public class AppContext {
 
 	@Bean
@@ -85,15 +72,6 @@ public class AppContext {
 		return service;
 	}*/
 	
-	@Bean
-	public SqlService sqlService(){
-		OxmSqlService sqlService = new OxmSqlService();
-		sqlService.setSqlmap(new ClassPathResource("springbook/user/dao/sqlmap.xml"));
-		sqlService.setUnmarshaller(this.unmarshaller());
-		sqlService.setSqlRegistry(this.sqlRegistry());
-		return sqlService;
-	}
-	
 	//@Resource와 @Autowired 의 차이점은 
 	// @Resource는 필드 이름 기준으로 빈을 찾고(필드이름 = 빈 아이디)
 	// @Autowired는 필드 타입을 기준으로 찾는다는 점! 여기선 DataSource 타입의 dataSource 빈이 존재하므로 타입 기준으로 주입받으면 혼란 발생.
@@ -106,27 +84,5 @@ public class AppContext {
 	// Bean named 'embeddedDatabase' must be of type [org.springframework.jdbc.datasource.embedded.EmbeddedDatabase], 
 	// but was actually of type [org.springframework.jdbc.datasource.SimpleDriverDataSource]
 	// 이런 에러가 떠버리니 뭐... 방법이 없네 그냥 스킵하고 자바코드로 만든다.
-	@Bean
-	public DataSource embeddedDatabase(){
-		return new EmbeddedDatabaseBuilder()
-				.setName("embeddedDatabase")
-				.setType(HSQL) //HSQL, DERBY, H2 세가지중 하나 선택할 수 있다.
-				.addScript("classpath:/springbook/user/sqlservice/updatable/sqlRegistrySchema.sql")
-				//.addScript("classpath:/springbook/learningtest/spring/embeddeddb/data.sql")
-				.build();
-	}
 	
-	@Bean
-	public SqlRegistry sqlRegistry(){
-		EmbeddedDbSqlRegistry sqlRegistry = new EmbeddedDbSqlRegistry();
-		sqlRegistry.setDataSource(this.embeddedDatabase());
-		return sqlRegistry;
-	}
-	
-	@Bean
-	public Unmarshaller unmarshaller(){
-		Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-		marshaller.setContextPath("springbook.user.sqlservice.jaxb");
-		return marshaller;
-	}
 }
