@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.mail.MailSender;
@@ -21,9 +23,11 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import springbook.user.dao.UserDao;
 import springbook.user.service.DummyMailSender;
 import springbook.user.service.UserService;
 import springbook.user.service.UserServiceTest.TestUserService;
+import springbook.user.sqlservice.SqlMapConfig;
 
 @Configuration
 //@ImportResource("/applicationContext.xml") //XML의 DI 정보를 활용한다.
@@ -45,7 +49,16 @@ import springbook.user.service.UserServiceTest.TestUserService;
 
 // 프로퍼티 소스 등록
 @PropertySource("/database.properties")
-public class AppContext {
+public class AppContext implements SqlMapConfig {
+	
+	// sqlMap.xml의 위치를 가져오는 인터페이스를 여기에서 구현함으로써
+	// 파일 위치가 바뀌어도 sqlServiceContext 수정할 필요가 없어짐. 독립된 모듈로 쓸 수 있다는 이야기!
+	// SQL 서비스가 필요한 애플리케이션은 메인 설정 클래스에서 @Import로 SqlServiceContext 빈 설정을 추가하고
+	// SqlMapConfig를 구현해 매핑파일의 위치를 지정해주기만 하면 오케이.
+	@Override
+	public Resource getSqlMapResource() {
+		return new ClassPathResource("sqlmap.xml", UserDao.class);
+	}
 	
 	// 스프링이 프로퍼티 값을 저장해놓는 Enviroment 타입의 환경 오브젝트
 	@Autowired
@@ -168,4 +181,5 @@ public class AppContext {
 			return new DummyMailSender();
 		}
 	}
+
 }

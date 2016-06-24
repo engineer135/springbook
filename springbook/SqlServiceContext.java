@@ -4,6 +4,7 @@ import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.
 
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -12,6 +13,7 @@ import org.springframework.oxm.Unmarshaller;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import springbook.user.sqlservice.OxmSqlService;
+import springbook.user.sqlservice.SqlMapConfig;
 import springbook.user.sqlservice.SqlRegistry;
 import springbook.user.sqlservice.SqlService;
 import springbook.user.sqlservice.updatable.EmbeddedDbSqlRegistry;
@@ -19,10 +21,14 @@ import springbook.user.sqlservice.updatable.EmbeddedDbSqlRegistry;
 @Configuration
 public class SqlServiceContext {
 	
+	// sqlMap.xml의 위치를 DI 받기 위한 필드
+	@Autowired
+	SqlMapConfig sqlMapConfig;
+	
 	@Bean
 	public SqlService sqlService(){
 		OxmSqlService sqlService = new OxmSqlService();
-		sqlService.setSqlmap(new ClassPathResource("springbook/user/dao/sqlmap.xml"));
+		sqlService.setSqlmap(this.sqlMapConfig.getSqlMapResource());
 		sqlService.setUnmarshaller(this.unmarshaller());
 		sqlService.setSqlRegistry(this.sqlRegistry());
 		return sqlService;
