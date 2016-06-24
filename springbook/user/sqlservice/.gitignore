@@ -14,3 +14,4 @@
 /SqlUpdateFailureException.class
 /ConcurrentHashMapSqlRegistry.class
 /SqlMapConfig.class
+/EnableSqlService.class

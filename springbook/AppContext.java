@@ -27,6 +27,7 @@ import springbook.user.dao.UserDao;
 import springbook.user.service.DummyMailSender;
 import springbook.user.service.UserService;
 import springbook.user.service.UserServiceTest.TestUserService;
+import springbook.user.sqlservice.EnableSqlService;
 import springbook.user.sqlservice.SqlMapConfig;
 
 @Configuration
@@ -45,7 +46,11 @@ import springbook.user.sqlservice.SqlMapConfig;
 //@Import({SqlServiceContext.class, TestAppContext.class, ProductionAppContext.class})
 
 // 중첩 클래스로 만들면서 임포트 문 수정
-@Import({SqlServiceContext.class})
+//@Import({SqlServiceContext.class})
+
+// SQL 서비스를 사용하겠다는 의미가 더욱 잘 드러나도록 @Improt를 메타 애노테이션으로 갖고 있는 @EnableSqlService 를 붙여준다.
+// 애노테이션을 상속한다고 생각하면 될듯... 
+@EnableSqlService
 
 // 프로퍼티 소스 등록
 @PropertySource("/database.properties")
