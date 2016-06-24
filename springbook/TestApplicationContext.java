@@ -92,13 +92,13 @@ public class TestApplicationContext {
 	@Autowired
 	UserDao userDao;
 	
-	@Bean
+	/*@Bean
 	public UserService userService(){
 		UserServiceImpl service = new UserServiceImpl();
-		service.setUserDao(this.userDao);
-		service.setMailSender(this.mailSender());
+		//service.setUserDao(this.userDao);
+		//service.setMailSender(this.mailSender());
 		return service;
-	}
+	}*/
 	
 	// TestUserService 같은 내부 클래스는 접근 제어자를 public으로 해줘야 한다.
 	// xml일때는 private도 빈의 클래스로 사용 가능하지만 자바코드로 참조할때는 불가능하므로.
@@ -106,8 +106,8 @@ public class TestApplicationContext {
 	public UserService testUserService(){
 		// UserService 생성 안하고 바로 하위 클래스 생성해서 쓰기 때문에... static으로 되어있어야 한다. http://www.devblog.kr/r/8y0gFPAvJ2j8MWIVVXucyP9uYvQegfSVbY5XNDkHt
 		TestUserService testService = new TestUserService();
-		testService.setUserDao(this.userDao);
-		testService.setMailSender(this.mailSender());
+		//testService.setUserDao(this.userDao);
+		//testService.setMailSender(this.mailSender());
 		return testService;
 	}
 	

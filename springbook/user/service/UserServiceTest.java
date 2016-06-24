@@ -111,11 +111,11 @@ public class UserServiceTest {
 		
 		// 목 오브젝트로 만든 UserDao를 직접 DI해준다.
 		MockUserDao mockUserDao = new MockUserDao(this.users);
-		userServiceImpl.setUserDao(mockUserDao);
+		//userServiceImpl.setUserDao(mockUserDao);
 		
 		// 메일 발송 결과를 테스트할 수 있도록 목 오브젝트를 만들어 userService의 의존 오브젝트로 주입한다.
 		MockMailSender mockMailSender = new MockMailSender();
-		userServiceImpl.setMailSender(mockMailSender);
+		//userServiceImpl.setMailSender(mockMailSender);
 		
 		userServiceImpl.upgradeLevels();
 		
@@ -153,7 +153,7 @@ public class UserServiceTest {
 		}
 	}
 	
-	//@Test
+	@Test
 	public void add(){
 		userDao.deleteAll();
 		
@@ -173,7 +173,7 @@ public class UserServiceTest {
 	}
 	
 	// User에 추가한 upgradeLevel() 메소드에 대한 테스트
-	//@Test
+	@Test
 	public void upgradeLevel(){
 		Level[] levels = Level.values();
 		for(Level level : levels){
@@ -184,7 +184,7 @@ public class UserServiceTest {
 		}
 	}
 	
-	//@Test(expected=IllegalStateException.class)
+	@Test(expected=IllegalStateException.class)
 	public void cannotUpgradeLevel(){
 		Level[] levels = Level.values();
 		for(Level level : levels){
@@ -250,7 +250,7 @@ public class UserServiceTest {
 	}
 	
 	// 확장 포인트컷 테스트
-	//@Test
+	@Test
 	public void classNamePointcutAdvisor(){
 		// 포인트컷 준비
 		NameMatchMethodPointcut classMethodPointcut = new NameMatchMethodPointcut(){

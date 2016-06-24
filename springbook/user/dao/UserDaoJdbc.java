@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
@@ -17,7 +17,10 @@ import springbook.user.sqlservice.SqlService;
 
 // 빈 아이디는 클래스 이름을 따라간다.
 // 만약 아이디를 지정해주고 싶다면 @Component("id")로 하면 된다.
-@Component
+//@Component
+
+// 데이터 액세스 서비스 제공하는 빈은 Component 대신 Repository를 쓴다
+@Repository
 public class UserDaoJdbc implements UserDao {
 	/*
 	// 상속의 단점을 피하기 위해 DB 연결을 별도의 클래스로 생성

@@ -2,25 +2,27 @@ package springbook.user.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.stereotype.Component;
 
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
+// id를 지정해줘야한다. userServiceTest와 겹치기 때문.
+@Component("userService")
 public class UserServiceImpl implements UserService {
 	public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
 	public static final int MIN_RECCOMEND_FOR_GOLD = 30;
 	
+	@Autowired
 	UserDao userDao;
 
-	public void setUserDao(UserDao userDao) {
+	/*public void setUserDao(UserDao userDao) {
 		this.userDao = userDao;
-	}
+	}*/
 	
 	//UserLevelUpgradePolicy userLevelUpgradePolicy;
 	
@@ -125,11 +127,12 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	// DI 받기 위해 추가
+	@Autowired
 	private MailSender mailSender;
 	
-	public void setMailSender(MailSender mailSender) {
+	/*public void setMailSender(MailSender mailSender) {
 		this.mailSender = mailSender;
-	}
+	}*/
 
 	// 메일 발송
 	private void sendUpgradeEMail(User user){
