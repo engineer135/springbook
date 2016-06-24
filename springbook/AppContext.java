@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.mail.MailSender;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -84,5 +85,4 @@ public class AppContext {
 	// Bean named 'embeddedDatabase' must be of type [org.springframework.jdbc.datasource.embedded.EmbeddedDatabase], 
 	// but was actually of type [org.springframework.jdbc.datasource.SimpleDriverDataSource]
 	// 이런 에러가 떠버리니 뭐... 방법이 없네 그냥 스킵하고 자바코드로 만든다.
-	
 }
