@@ -6,7 +6,6 @@ import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -15,6 +14,7 @@ import org.springframework.mail.MailSender;
 import org.springframework.oxm.Unmarshaller;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import springbook.user.dao.UserDao;
 import springbook.user.dao.UserDaoJdbc;
@@ -35,7 +35,10 @@ import springbook.user.sqlservice.updatable.EmbeddedDbSqlRegistry;
  *
  */
 @Configuration
-@ImportResource("/applicationContext.xml") //XML의 DI 정보를 활용한다.
+//@ImportResource("/applicationContext.xml") //XML의 DI 정보를 활용한다.
+
+// tx-annotation-driven을 대체할 수 있는 애노테이션. 스프링 3.1부터 생김 대박!!!
+@EnableTransactionManagement
 public class TestApplicationContext {
 	
 	@Bean
