@@ -22,7 +22,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ComponentScan(basePackages="springbook.user")
 
 //보조 설정정보 임포트
-@Import(SqlServiceContext.class)
+//@Import(SqlServiceContext.class)
+
+//프로파일을 이용하자. 모든 설정정보 클래스를 임포트한다.
+@Import({SqlServiceContext.class, TestAppContext.class, ProductionAppContext.class})
 public class AppContext {
 
 	@Bean

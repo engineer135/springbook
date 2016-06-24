@@ -1,7 +1,7 @@
 package springbook.user.service;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -30,19 +30,18 @@ import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.NameMatchMethodPointcut;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.Transactional;
 
 import springbook.AppContext;
 import springbook.TestAppContext;
-import springbook.TestApplicationContext;
 import springbook.learningtest.jdk.Hello;
 import springbook.learningtest.jdk.HelloTarget;
 import springbook.learningtest.jdk.UppercaseAdvice;
@@ -56,6 +55,9 @@ import springbook.user.domain.User;
 //@ContextConfiguration(classes=TestApplicationContext.class) //테스트 컨텍스트가 자동으로 만들어줄 애플리케이션 컨텍스트의 위치 지정
 
 @ContextConfiguration(classes={TestAppContext.class, AppContext.class})
+
+// 프로파일 적용 필터라고 보면 된다.
+@ActiveProfiles("test")
 public class UserServiceTest {
 	
 	public static final Logger logger = LogManager.getLogger();
@@ -373,6 +375,16 @@ public class UserServiceTest {
 	//@Test
 	public void bean(){
 		assertThat(this.userService, is(notNullValue()));
+	}
+	
+	// 등록된 빈 내역을 조회하는 테스트 메소드(스프링 기본 제공. 오토와이어링만 하면 됨)
+	@Autowired DefaultListableBeanFactory bf;
+	
+	@Test
+	public void beans(){
+		for(String n : bf.getBeanDefinitionNames()){
+			System.out.println(n+" \t " +bf.getBean(n).getClass().getName());
+		}
 	}
 	
 }
