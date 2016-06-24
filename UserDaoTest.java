@@ -14,6 +14,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import springbook.AppContext;
+import springbook.TestAppContext;
 import springbook.TestApplicationContext;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
@@ -26,7 +28,10 @@ import springbook.user.domain.User;
 // 그래서.. jUnit이 @beforeClass 스태틱 메소드를 지원한다. 하지만, 스프링에서 직접 제공하는 애플리케이션 컨텍스트 테스트 지원 기능을 사용하는 것이 더 편리!
 @RunWith(SpringJUnit4ClassRunner.class) // 스프링의 테스트 컨텍스트 프레임워크의 JUnit 확장기능 지정
 //@ContextConfiguration(locations="/applicationContext.xml") //테스트 컨텍스트가 자동으로 만들어줄 애플리케이션 컨텍스트의 위치 지정
-@ContextConfiguration(classes=TestApplicationContext.class) //테스트 컨텍스트가 자동으로 만들어줄 애플리케이션 컨텍스트의 위치 지정
+//@ContextConfiguration(classes=TestApplicationContext.class) //테스트 컨텍스트가 자동으로 만들어줄 애플리케이션 컨텍스트의 위치 지정
+
+// 컨텍스트 분리
+@ContextConfiguration(classes={TestAppContext.class, AppContext.class})
 public class UserDaoTest {
 	
 	@Autowired

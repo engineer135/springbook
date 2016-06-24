@@ -40,6 +40,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 
+import springbook.AppContext;
+import springbook.TestAppContext;
 import springbook.TestApplicationContext;
 import springbook.learningtest.jdk.Hello;
 import springbook.learningtest.jdk.HelloTarget;
@@ -51,7 +53,9 @@ import springbook.user.domain.User;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 //@ContextConfiguration(locations="/applicationContext.xml")
-@ContextConfiguration(classes=TestApplicationContext.class) //테스트 컨텍스트가 자동으로 만들어줄 애플리케이션 컨텍스트의 위치 지정
+//@ContextConfiguration(classes=TestApplicationContext.class) //테스트 컨텍스트가 자동으로 만들어줄 애플리케이션 컨텍스트의 위치 지정
+
+@ContextConfiguration(classes={TestAppContext.class, AppContext.class})
 public class UserServiceTest {
 	
 	public static final Logger logger = LogManager.getLogger();

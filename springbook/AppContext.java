@@ -21,32 +21,22 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import springbook.user.dao.UserDao;
 import springbook.user.service.DummyMailSender;
 import springbook.user.service.UserService;
-import springbook.user.service.UserServiceImpl;
 import springbook.user.service.UserServiceTest.TestUserService;
 import springbook.user.sqlservice.OxmSqlService;
 import springbook.user.sqlservice.SqlRegistry;
 import springbook.user.sqlservice.SqlService;
 import springbook.user.sqlservice.updatable.EmbeddedDbSqlRegistry;
 
-/**
- * @author Engineer135
- * 
- * applicationContext.xml을 대체할 DI 설정정보를 담은 클래스
- * @Configuration 어노테이션을 붙여주면 오케이
- *
- */
-//@Configuration
+@Configuration
 //@ImportResource("/applicationContext.xml") //XML의 DI 정보를 활용한다.
 
-// tx-annotation-driven을 대체할 수 있는 애노테이션. 스프링 3.1부터 생김 대박!!!
-//@EnableTransactionManagement
+//tx-annotation-driven을 대체할 수 있는 애노테이션. 스프링 3.1부터 생김 대박!!!
+@EnableTransactionManagement
 
-// 자동 빈 스캔 기능을 사용하겠어요.
-//@ComponentScan(basePackages="springbook.user")
+//자동 빈 스캔 기능을 사용하겠어요.
+@ComponentScan(basePackages="springbook.user")
+public class AppContext {
 
-// 컨텍스트 분리하면서 미사용
-public class TestApplicationContext {
-	
 	@Bean
 	public DataSource dataSource(){
 		// 왜 DataSource가 아닌 SimpleDriverDataSource로 선언하는가?
@@ -87,13 +77,6 @@ public class TestApplicationContext {
 		return userDao;
 	}*/
 	
-	// UserDao 자체를 그냥 Autowired 처리
-	// 그리고 구현 클래스인 UserDaoJdbc에 @Component 애노테이션을 붙여주면 된다.
-	// @Component는 빈으로 등록될 후보 클래스에 붙여주는 일종의 마커(Marker)라고 보면 된다.
-	// 그렇다고 후보를 자동 등록해주진 않기 때문에, 빈 스캔 기능을 사용하겠다는 @ComponentScan을 this 클래스에 붙여주면 오케이.
-	@Autowired
-	UserDao userDao;
-	
 	/*@Bean
 	public UserService userService(){
 		UserServiceImpl service = new UserServiceImpl();
@@ -101,22 +84,6 @@ public class TestApplicationContext {
 		//service.setMailSender(this.mailSender());
 		return service;
 	}*/
-	
-	// TestUserService 같은 내부 클래스는 접근 제어자를 public으로 해줘야 한다.
-	// xml일때는 private도 빈의 클래스로 사용 가능하지만 자바코드로 참조할때는 불가능하므로.
-	@Bean
-	public UserService testUserService(){
-		// UserService 생성 안하고 바로 하위 클래스 생성해서 쓰기 때문에... static으로 되어있어야 한다. http://www.devblog.kr/r/8y0gFPAvJ2j8MWIVVXucyP9uYvQegfSVbY5XNDkHt
-		TestUserService testService = new TestUserService();
-		//testService.setUserDao(this.userDao);
-		//testService.setMailSender(this.mailSender());
-		return testService;
-	}
-	
-	@Bean
-	public MailSender mailSender(){
-		return new DummyMailSender();
-	}
 	
 	@Bean
 	public SqlService sqlService(){
