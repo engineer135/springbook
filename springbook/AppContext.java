@@ -1,12 +1,17 @@
 package springbook;
 
+import java.sql.Driver;
+
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.mail.MailSender;
@@ -35,7 +40,14 @@ import springbook.user.service.UserServiceTest.TestUserService;
 
 // 중첩 클래스로 만들면서 임포트 문 수정
 @Import({SqlServiceContext.class})
+
+// 프로퍼티 소스 등록
+@PropertySource("/database.properties")
 public class AppContext {
+	
+	// 스프링이 프로퍼티 값을 저장해놓는 Enviroment 타입의 환경 오브젝트
+	@Autowired
+	Environment env;
 
 	@Bean
 	public DataSource dataSource(){
@@ -43,10 +55,14 @@ public class AppContext {
 		// DataSource에는 setUrl이나 setUsername 같은 수정자 메소드가 없거든. 우린 이게 필요한데!
 		SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
 		
-		dataSource.setDriverClass(org.mariadb.jdbc.Driver.class);
-		dataSource.setUrl("jdbc:mariadb://localhost/springbook?characterEncoding=utf-8");
-		dataSource.setUsername("spring");
-		dataSource.setPassword("book");
+		try{
+			dataSource.setDriverClass((Class<? extends Driver>) Class.forName(env.getProperty("db.driverClass")));
+		}catch(ClassNotFoundException e){
+			throw new RuntimeException(e);
+		}
+		dataSource.setUrl(env.getProperty("db.url"));
+		dataSource.setUsername(env.getProperty("db.username"));
+		dataSource.setPassword(env.getProperty("db.password"));
 		
 		return dataSource;
 	}
