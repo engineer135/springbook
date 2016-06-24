@@ -3,7 +3,7 @@ package springbook.user.dao;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration //애플리케이션 컨텍스트 또는 빈 팩토리가 사용할 설정정보라는 표시
+// @Configuration //애플리케이션 컨텍스트 또는 빈 팩토리가 사용할 설정정보라는 표시
 public class CountingDaoFactory {
 
 	@Bean // 오브젝트 생성을 담당하는 IoC용 메소드라는 표시
@@ -11,9 +11,11 @@ public class CountingDaoFactory {
 		//return new UserDao(connectionMaker());
 		
 		// 생성자가 아닌 수정자 메소드를 이용해 connetionMaker 주입
-		UserDao userDao = new UserDao();
+		//UserDao userDao = new UserDao();
 		//userDao.setConnectionMaker(connectionMaker());
-		return userDao;
+		//return userDao;
+		
+		return null;
 	}
 	
 	/*public AccountDao accountDao(){

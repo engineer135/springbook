@@ -17,7 +17,7 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 // 스프링이 제어권을 가지고 직접 만들고 관계를 부여하는 오브젝트를 빈(Bean)이라고 부른다.
 // 빈의 생성과 관계설정 같은 제어를 담당하는 IoC 오브젝트를 빈팩토리 라고 부른다. 이를 확장한 것이 애플리케이션 컨텍스트.
-@Configuration //애플리케이션 컨텍스트 또는 빈 팩토리가 사용할 설정정보라는 표시
+// @Configuration //애플리케이션 컨텍스트 또는 빈 팩토리가 사용할 설정정보라는 표시
 public class DaoFactory {
 	
 	@Bean // 오브젝트 생성을 담당하는 IoC용 메소드라는 표시
@@ -25,12 +25,13 @@ public class DaoFactory {
 		//return new UserDao(connectionMaker());
 		
 		// 생성자가 아닌 수정자 메소드를 이용해 connetionMaker 주입
-		UserDao userDao = new UserDao();
+		// UserDao userDao = new UserDao();
 		//userDao.setConnectionMaker(connectionMaker());
 		
 		// dataSource로 변경
-		userDao.setDataSource(dataSource());
-		return userDao;
+		// userDao.setDataSource(dataSource());
+		// return userDao;
+		return null;
 	}
 	
 	/*public AccountDao accountDao(){
