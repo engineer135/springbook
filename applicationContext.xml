@@ -50,22 +50,22 @@
 		<bean id="NconnectionMaker" class="springbook.user.dao.NConnectionMaker"/>
 		이렇게 추가해주고, userDao 프로퍼티의 ref에 NconnectionMaker 이걸 써주면 된다. 그럼 원하는 DB 바꿔 쓸 수 있으니까.
 	 -->
-	<bean id="userDao" class="springbook.user.dao.UserDaoJdbc">
-		<!-- <property name="connectionMaker" ref="connectionMaker"></property> -->
+	<!-- <bean id="userDao" class="springbook.user.dao.UserDaoJdbc">
+		<property name="connectionMaker" ref="connectionMaker"></property>
 		
-		<!-- dataSource로 변경 -->
+		dataSource로 변경
 		<property name="dataSource" ref="dataSource"></property>
 		
-		<!--  jdbcContext -->
-		<!-- <property name="jdbcContext" ref="jdbcContext"></property> -->
+		 jdbcContext
+		<property name="jdbcContext" ref="jdbcContext"></property>
 		
-		<!-- SQL 문 넣기 -->
-		<!-- <property name="sqlAdd" value="insert into users(id, name, password, level, login, recommend, email) values(?,?,?,?,?,?,?)"/> -->
+		SQL 문 넣기
+		<property name="sqlAdd" value="insert into users(id, name, password, level, login, recommend, email) values(?,?,?,?,?,?,?)"/>
 		
-		<!-- sqlService 추가! -->
+		sqlService 추가!
 		<property name="sqlService" ref="sqlService"/>
 		
-	</bean>		
+	</bean>	 -->	
 	
 	<!-- <bean id="sqlService" class="springbook.user.sqlservice.XmlSqlService">
 	
@@ -91,28 +91,28 @@
 	</bean> -->
 	
 	<!-- OXM을 적용한 SqlService 설정 -->
-	<bean id="sqlService" class="springbook.user.sqlservice.OxmSqlService">
+	<!-- <bean id="sqlService" class="springbook.user.sqlservice.OxmSqlService">
 		<property name="unmarshaller" ref="unmarshaller"/>
 		<property name="sqlmap" value="classpath:springbook/user/dao/sqlmap.xml"/>
-		<!-- <property name="sqlmap" value="file:C:/Users/Administrator/workspace/springbook/springbook/learningtest/spring/oxm/sqlmap.xml"/>
-		<property name="sqlmap" value="http://www.epril.com/resources/sqlmap.xml"/> -->
+		<property name="sqlmap" value="file:C:/Users/Administrator/workspace/springbook/springbook/learningtest/spring/oxm/sqlmap.xml"/>
+		<property name="sqlmap" value="http://www.epril.com/resources/sqlmap.xml"/>
 		
-		<!-- 쿼리 수정 가능 레지스트리 적용 -->
+		쿼리 수정 가능 레지스트리 적용
 		<property name="sqlRegistry" ref="sqlRegistry"/>
 		
-	</bean>
+	</bean> -->
 	
-	<bean id="unmarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+	<!-- <bean id="unmarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
 		<property name="contextPath" value="springbook.user.sqlservice.jaxb"/>
-	</bean>
+	</bean> -->
 	
 	<!-- <bean id="sqlRegistry" class="springbook.user.sqlservice.updatable.ConcurrentHashMapSqlRegistry">
 	</bean> -->
 	
 	<!-- EmbeddedDbSqlRegistry 등록 -->
-	<bean id="sqlRegistry" class="springbook.user.sqlservice.updatable.EmbeddedDbSqlRegistry">
+	<!-- <bean id="sqlRegistry" class="springbook.user.sqlservice.updatable.EmbeddedDbSqlRegistry">
 		<property name="dataSource" ref="embeddedDatabase"/>
-	</bean>
+	</bean> -->
 	
 	<!-- <bean id="jdbcContext" class="springbook.user.dao.JdbcContext">
 		dataSource 추가
@@ -160,24 +160,24 @@
 	-> 생성되는 모든 빈에 대해 어드바이저의 포인트컷을 적용해보면서 프록시 적용 대상 선정
 	-> 빈 클래스가 프록시 선정 대상이면 프록시를 만들어 원래 빈 오브젝트와 바꿔치기!
 	  -->
-	<bean id="userService" class="springbook.user.service.UserServiceImpl">
+	<!-- <bean id="userService" class="springbook.user.service.UserServiceImpl">
 		<property name="userDao" ref="userDao"/>
-		<!-- 메일 발송 -->
+		메일 발송
 		<property name="mailSender" ref="mailSender"/>
-	</bean>
+	</bean> -->
 	
 	<!-- 자동 프록시 생성기 테스트용 userService 등록 -->
 	<!-- parent 애트리뷰트 는 프로퍼티 정의를 포함해서 userService 빈의 설정을 상속받는다는 의미! -->
-	<bean id="testUserService" class="springbook.user.service.UserServiceTest$TestUserService" parent="userService"/><!-- 스태틱 맴버 클래스는 $로 지정한다. -->
+	<!-- <bean id="testUserService" class="springbook.user.service.UserServiceTest$TestUserService" parent="userService"/> --><!-- 스태틱 맴버 클래스는 $로 지정한다. -->
 	
-	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<!-- <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource"/>
-	</bean>
+	</bean> -->
 	
 	<!-- <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl"> -->
-	<bean id="mailSender" class="springbook.user.service.DummyMailSender"><!-- 메일 전송할 필요 없다. 전송되는지만 확인 -->
+	<!-- <bean id="mailSender" class="springbook.user.service.DummyMailSender">메일 전송할 필요 없다. 전송되는지만 확인
 		<property name="host" value="mail.server.com"/>
-	</bean>
+	</bean> -->
 	
 	<!-- 업그레이드 정책 인터페이스 빈 설정 -->
 	<bean id="userLevelUpgradePolicy" class="springbook.user.service.UserLevelUpgradePolicySpecial">
@@ -261,7 +261,7 @@
 	<!-- <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/> -->
 	
 	<!-- HSQL 내장형 DB 팩토리빈 설정 -->
-	<jdbc:embedded-database id="embeddedDatabase" type="HSQL">
+	<!-- <jdbc:embedded-database id="embeddedDatabase" type="HSQL">
 		<jdbc:script location="classpath:springbook/user/sqlservice/updatable/sqlRegistrySchema.sql"/>
-	</jdbc:embedded-database>
+	</jdbc:embedded-database> -->
 </beans>

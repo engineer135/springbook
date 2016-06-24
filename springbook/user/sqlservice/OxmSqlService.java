@@ -68,6 +68,9 @@ public class OxmSqlService implements SqlService {
 		
 		@Override
 		public void read(SqlRegistry sqlRegistry) {
+			
+			System.out.println("read 메소드 들어옴! "+sqlmap.getFilename());
+			
 			try{
 				//Source source = new StreamSource(UserDao.class.getResourceAsStream(this.sqlmapFile));
 				

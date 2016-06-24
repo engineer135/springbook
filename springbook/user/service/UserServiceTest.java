@@ -302,8 +302,9 @@ public class UserServiceTest {
 	
 	// UserService의 트랜젝션 테스트를 위한 대역 클래스. 
 	// 스태틱 클래스로 만든다. 왜 스태틱으로 만들까...!?!?? 참조 -> http://secretroute.tistory.com/entry/%EC%9E%90%EB%B0%94%EC%9D%98%E7%A5%9E-Vol1-Nested-Class
+	// http://www.devblog.kr/r/8y0gFPAvJ2j8MWIVVXucyP9uYvQegfSVbY5XNDkHt
 	// 자동 프록시 생성기를 테스트하기 위해 이름 변경 TestUserService -> TestUserServiceImpl (어드바이스를 적용해주는 대상 클래스의 이름 패턴을 맞춰줘야함)
-	static class TestUserService extends UserServiceImpl{
+	public static class TestUserService extends UserServiceImpl{
 		//private String id = "madnite1"; // 테스트 픽스처의 users(3)의 id값을 고정시켜버렸다.
 		
 		/*protected void upgradeLevel(User user){// 오버라이드
