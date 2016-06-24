@@ -6,11 +6,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.mail.MailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import springbook.user.service.DummyMailSender;
+import springbook.user.service.UserService;
+import springbook.user.service.UserServiceTest.TestUserService;
 
 @Configuration
 //@ImportResource("/applicationContext.xml") //XML의 DI 정보를 활용한다.
@@ -25,7 +31,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 //@Import(SqlServiceContext.class)
 
 //프로파일을 이용하자. 모든 설정정보 클래스를 임포트한다.
-@Import({SqlServiceContext.class, TestAppContext.class, ProductionAppContext.class})
+//@Import({SqlServiceContext.class, TestAppContext.class, ProductionAppContext.class})
+
+// 중첩 클래스로 만들면서 임포트 문 수정
+@Import({SqlServiceContext.class})
 public class AppContext {
 
 	@Bean
@@ -88,4 +97,39 @@ public class AppContext {
 	// Bean named 'embeddedDatabase' must be of type [org.springframework.jdbc.datasource.embedded.EmbeddedDatabase], 
 	// but was actually of type [org.springframework.jdbc.datasource.SimpleDriverDataSource]
 	// 이런 에러가 떠버리니 뭐... 방법이 없네 그냥 스킵하고 자바코드로 만든다.
+	
+	
+	
+	// production 컨텍스트와 test 컨텍스트를 이너 클래스로 변경한다. 각각 독립적으로 사용될 수 있게 스태틱으로 만들어야 한다.
+	// 이렇게 하면 깔끔하다. 
+	
+	@Configuration
+	@Profile("production")
+	public static class ProductionAppContext {
+		// 운영용 메일 서버를 지원하는 MailSender 빈을 등록해줘야 한다.
+		@Bean
+		public MailSender mailSender(){
+			JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+			mailSender.setHost("mail.mycompany.com");
+			return mailSender;
+		}
+	}
+	
+	@Configuration
+	@Profile("test")
+	public static class TestAppContext {
+		@Bean
+		public UserService testUserService(){
+			// UserService 생성 안하고 바로 하위 클래스 생성해서 쓰기 때문에... static으로 되어있어야 한다. http://www.devblog.kr/r/8y0gFPAvJ2j8MWIVVXucyP9uYvQegfSVbY5XNDkHt
+			TestUserService testService = new TestUserService();
+			//testService.setUserDao(this.userDao);
+			//testService.setMailSender(this.mailSender());
+			return testService;
+		}
+		
+		@Bean
+		public MailSender mailSender(){
+			return new DummyMailSender();
+		}
+	}
 }

@@ -3,3 +3,5 @@
 /TestAppContext.class
 /SqlServiceContext.class
 /ProductionAppContext.class
+/AppContext$ProductionAppContext.class
+/AppContext$TestAppContext.class

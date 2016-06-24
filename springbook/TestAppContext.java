@@ -9,10 +9,11 @@ import springbook.user.service.DummyMailSender;
 import springbook.user.service.UserService;
 import springbook.user.service.UserServiceTest.TestUserService;
 
-@Configuration
+//메인 컨텍스트의 중첩 클래스로 변경하면서 미사용
+//@Configuration
 
 // Profile 지정
-@Profile("test")
+//@Profile("test")
 public class TestAppContext {
 	@Bean
 	public UserService testUserService(){
